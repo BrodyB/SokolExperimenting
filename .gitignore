@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+*.pdb
+.vs/SokolExperimenting/FileContentIndex
+.vs/SokolExperimenting/v17
+.vs/SokolFountain/FileContentIndex
