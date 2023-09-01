@@ -19,5 +19,8 @@
     <ClInclude Include="loadpng-sapp.glsl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="textured.glsl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
