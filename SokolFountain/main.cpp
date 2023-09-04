@@ -49,7 +49,14 @@ static struct
 	uint8_t file_buffer[256 * 1024]; // Buffer for PNG image
 } state;
 
-// Struct for a vertex on a cube
+// Struct for a sprite instance
+struct sprite_t {
+	float x;
+	float y;
+	float scale;
+};
+
+// Struct for a sprite vertex
 typedef struct
 {
 	float x, y, z;
@@ -103,27 +110,21 @@ static void init(void)
 	float h = normalize_y(512.0f);
 	const float spriteZ = 0.f;
 
+	const sprite_t sprite_data[] = {
+		{ 11, 12, 13 },
+		{ 21, 22, 23 },
+		{ 31, 32, 33 },
+		{ 41, 42, 43 },
+		{ 51, 52, 53 },
+		{ 61, 62, 63 },
+	};
+
 	const vertex_t vertices[] = {
 		//  x, y, z, u, v
 		{ x + -1.0f, -y + 1.0f, spriteZ, 0.0f, 0.0f },			// Top-Left
 		{ x + -1.0f + w, -y + 1.0f, spriteZ, 1.0f, 0.0f },		// Top-Right
 		{ x + -1.0f + w, -y + 1.0f - h, spriteZ, 1.0f, 1.0f },	// Bottom-Left
 		{ x + -1.0f, -y + 1.0f - h, spriteZ, 0.0f, 1.0f }		// Bottom-Right
-	};
-
-	struct sprite_t {
-		float x;
-		float y;
-		float scale;
-	};
-
-	const sprite_t sprite_data[] = {
-		{ 20, 20, 1 },
-		{ 20, 200, 1 },
-		{ 40, 150, 1 },
-		{ 20, 20, 1 },
-		{ 20, 20, 1 },
-		{ 20, 20, 1 },
 	};
 
 	// Add inst vec4 to shader
@@ -134,6 +135,11 @@ static void init(void)
 	vbuffer.label = "quad-vertices";
 	state.bind.vertex_buffers[0] = sg_make_buffer(&vbuffer);
 
+	sg_buffer_desc instbuffer{};
+	instbuffer.type = SG_BUFFERTYPE_VERTEXBUFFER;
+	instbuffer.data = SG_RANGE(sprite_data);
+	instbuffer.label = "sprite instances";
+	state.bind.vertex_buffers[1] = sg_make_buffer(&instbuffer);
 
 	// create an index buffer for the quad
 	const uint16_t indices[] = {
@@ -146,15 +152,18 @@ static void init(void)
 	ibuffer.label = "quad-indices";
 	state.bind.index_buffer = sg_make_buffer(&ibuffer);
 
-
 	// a pipeline state object (like a material basis in luxe)
 	sg_pipeline_desc pip{};
 	pip.cull_mode = SG_CULLMODE_NONE;
 	pip.shader = sg_make_shader(texture_shader_desc(sg_query_backend()));
 	pip.layout.attrs[ATTR_vs_pos].format = SG_VERTEXFORMAT_FLOAT3;
+	pip.layout.attrs[ATTR_vs_pos].buffer_index = 0;
 	pip.layout.attrs[ATTR_vs_texcoord0].format = SG_VERTEXFORMAT_FLOAT2;
-
-
+	pip.layout.attrs[ATTR_vs_texcoord0].buffer_index = 0;
+	
+	pip.layout.attrs[ATTR_vs_inst].format = SG_VERTEXFORMAT_FLOAT3;
+	pip.layout.attrs[ATTR_vs_inst].buffer_index = 1;
+	pip.layout.buffers[1].step_func = SG_VERTEXSTEP_PER_INSTANCE;
 
 	pip.index_type = SG_INDEXTYPE_UINT16;
 	pip.label = "quad-pipeline";
@@ -226,7 +235,9 @@ static void frame(void)
 	// pump the sokol-fetch message queues, and invoke response callbacks
 	sfetch_dowork();
 
+	//
 	// Perform frame drawing operations
+	//
 
 	// set render target
 	sg_begin_default_pass(&state.pass_action, sapp_width(), sapp_height());
@@ -234,7 +245,7 @@ static void frame(void)
 	sg_apply_pipeline(state.pip); // Set the material type (i.e. opaque texture material)
 	sg_apply_bindings(&state.bind); // The image, vertices, and indexes
 	// Draw the sprite
-	sg_draw(0, 6, 1); // Base element, Number of elements, instances
+	sg_draw(0, 6, 6); // Base element, Number of elements, instances
 
 	// To do sprite instances
 		// 1. Up the instance count
