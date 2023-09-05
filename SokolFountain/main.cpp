@@ -8,10 +8,6 @@
 //  Trying to take this from a spinning cube to just showing a textured quad,
 //  and then eventually a lot of textured quads
 //------------------------------------------------------------------------------
-#include <iostream>
-#define HANDMADE_MATH_IMPLEMENTATION
-#define HANDMADE_MATH_NO_SSE
-#include "../libs/HandmadeMath.h"
 #define SOKOL_IMPL
 #define SOKOL_GLCORE33
 #include "sokol_gfx.h"
@@ -102,32 +98,35 @@ static void init(void)
 	sampler.min_filter = SG_FILTER_LINEAR;
 	sampler.mag_filter = SG_FILTER_LINEAR;
 	state.bind.fs.samplers[SLOT_smp] = sg_make_sampler(&sampler);
-
+	
 	// quad vertex buffer with packed texcoords
-	float x = normalize_x(32.0f);
-	float y = normalize_y(48.0f);
-	float w = normalize_x(512.0f);
-	float h = normalize_y(512.0f);
-	const float spriteZ = 0.f;
+	float w = normalize_x(256);
+	float h = normalize_y(256.0f);
+	float spx = normalize_x(16.0f);
+	float spy = normalize_y(16.0f);
+	const float spriteZ = 0.0f;
+	const float x1 = -1.0f + w;
+	const float x2 = x1 + (w * 2.0f) + spx;
+	const float x3 = x2 + (w * 2.0f) + spx;
+	const float y1 = 1.0f - h;
+	const float y2 = y1 - (h * 2.0f) - spy;
 
 	const sprite_t sprite_data[] = {
-		{ 11, 12, 13 },
-		{ 21, 22, 23 },
-		{ 31, 32, 33 },
-		{ 41, 42, 43 },
-		{ 51, 52, 53 },
-		{ 61, 62, 63 },
+		{ x1, y1, 0.25f },
+		{ x2, y1, 0.5f },
+		{ x3, y1, 0.33f},
+		{ x1, y2, 0.8f },
+		{ x2, y2, 1.0f },
+		{ x3, y2, 0.75f },
 	};
 
 	const vertex_t vertices[] = {
 		//  x, y, z, u, v
-		{ x + -1.0f, -y + 1.0f, spriteZ, 0.0f, 0.0f },			// Top-Left
-		{ x + -1.0f + w, -y + 1.0f, spriteZ, 1.0f, 0.0f },		// Top-Right
-		{ x + -1.0f + w, -y + 1.0f - h, spriteZ, 1.0f, 1.0f },	// Bottom-Left
-		{ x + -1.0f, -y + 1.0f - h, spriteZ, 0.0f, 1.0f }		// Bottom-Right
+		{ -w, h, spriteZ, 0.0f, 0.0f},		// Top-Left
+		{ w, h, spriteZ, 1.0f, 0.0f },		// Top-Right
+		{ w, -h, spriteZ, 1.0f, 1.0f },		// Bottom-Right
+		{ -w, -h, spriteZ, 0.0f, 1.0f }		// Bottom-Left
 	};
-
-	// Add inst vec4 to shader
 
 	sg_buffer_desc vbuffer{};
 	vbuffer.type = SG_BUFFERTYPE_VERTEXBUFFER;
@@ -146,6 +145,7 @@ static void init(void)
 		0, 1, 2,  0, 2, 3
 	};
 
+	// Index buffer
 	sg_buffer_desc ibuffer{};
 	ibuffer.type = SG_BUFFERTYPE_INDEXBUFFER;
 	ibuffer.data = SG_RANGE(indices);
@@ -155,18 +155,23 @@ static void init(void)
 	// a pipeline state object (like a material basis in luxe)
 	sg_pipeline_desc pip{};
 	pip.cull_mode = SG_CULLMODE_NONE;
+	pip.depth.compare = SG_COMPAREFUNC_LESS_EQUAL;
+	pip.depth.write_enabled = true;
+	pip.index_type = SG_INDEXTYPE_UINT16;
+	pip.label = "quad-pipeline";
+
 	pip.shader = sg_make_shader(texture_shader_desc(sg_query_backend()));
+	// Vertex buffer
 	pip.layout.attrs[ATTR_vs_pos].format = SG_VERTEXFORMAT_FLOAT3;
 	pip.layout.attrs[ATTR_vs_pos].buffer_index = 0;
 	pip.layout.attrs[ATTR_vs_texcoord0].format = SG_VERTEXFORMAT_FLOAT2;
 	pip.layout.attrs[ATTR_vs_texcoord0].buffer_index = 0;
 	
+	// Instance data buffer
 	pip.layout.attrs[ATTR_vs_inst].format = SG_VERTEXFORMAT_FLOAT3;
 	pip.layout.attrs[ATTR_vs_inst].buffer_index = 1;
 	pip.layout.buffers[1].step_func = SG_VERTEXSTEP_PER_INSTANCE;
 
-	pip.index_type = SG_INDEXTYPE_UINT16;
-	pip.label = "quad-pipeline";
 	state.pip = sg_make_pipeline(&pip);
 
 	/*
