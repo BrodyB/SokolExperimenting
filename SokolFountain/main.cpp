@@ -8,6 +8,9 @@
 //  Trying to take this from a spinning cube to just showing a textured quad,
 //  and then eventually a lot of textured quads
 //------------------------------------------------------------------------------
+#include <random>
+#define _USE_MATH_DEFINES
+#include <math.h>
 #define SOKOL_IMPL
 #define SOKOL_GLCORE33
 #include "sokol_gfx.h"
@@ -19,11 +22,21 @@
 #include "../libs/stb/stb_image.h"
 #include "textured.glsl.h"
 
+#define MAX_PARTICLES (4096)
+
 // File path utility function
 const char* fileutil_get_path(const char* filename, char* buf, size_t buf_size)
 {
 	snprintf(buf, buf_size, "%s", filename);
 	return buf;
+}
+
+const float random(float min, float max)
+{
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> distr(min, max);
+	return (float)distr(gen);
 }
 
 const float normalize_x(float x)
@@ -36,21 +49,23 @@ const float normalize_y(float y)
 	return y * (2.0f / sapp_heightf());
 }
 
+// Struct for a sprite instance
+struct sprite_t {
+	float x, y;
+	float scale;
+	float velX, velY;
+};
+
 // Struct for the app state
 static struct
 {
 	sg_pass_action pass_action;
 	sg_pipeline pip;
 	sg_bindings bind;
-	uint8_t file_buffer[256 * 1024]; // Buffer for PNG image
+	uint8_t image_buffer[256 * 1024]; // Buffer for PNG image
+	sprite_t instances[MAX_PARTICLES];
+	int instance_count;
 } state;
-
-// Struct for a sprite instance
-struct sprite_t {
-	float x;
-	float y;
-	float scale;
-};
 
 // Struct for a sprite vertex
 typedef struct
@@ -102,24 +117,9 @@ static void init(void)
 	// quad vertex buffer with packed texcoords
 	float w = normalize_x(256);
 	float h = normalize_y(256.0f);
-	float spx = normalize_x(16.0f);
-	float spy = normalize_y(16.0f);
 	const float spriteZ = 0.0f;
-	const float x1 = -1.0f + w;
-	const float x2 = x1 + (w * 2.0f) + spx;
-	const float x3 = x2 + (w * 2.0f) + spx;
-	const float y1 = 1.0f - h;
-	const float y2 = y1 - (h * 2.0f) - spy;
 
-	const sprite_t sprite_data[] = {
-		{ x1, y1, 0.25f },
-		{ x2, y1, 0.5f },
-		{ x3, y1, 0.33f},
-		{ x1, y2, 0.8f },
-		{ x2, y2, 1.0f },
-		{ x3, y2, 0.75f },
-	};
-
+	// Static vertex geometry buffer
 	const vertex_t vertices[] = {
 		//  x, y, z, u, v
 		{ -w, h, spriteZ, 0.0f, 0.0f},		// Top-Left
@@ -134,11 +134,6 @@ static void init(void)
 	vbuffer.label = "quad-vertices";
 	state.bind.vertex_buffers[0] = sg_make_buffer(&vbuffer);
 
-	sg_buffer_desc instbuffer{};
-	instbuffer.type = SG_BUFFERTYPE_VERTEXBUFFER;
-	instbuffer.data = SG_RANGE(sprite_data);
-	instbuffer.label = "sprite instances";
-	state.bind.vertex_buffers[1] = sg_make_buffer(&instbuffer);
 
 	// create an index buffer for the quad
 	const uint16_t indices[] = {
@@ -152,11 +147,21 @@ static void init(void)
 	ibuffer.label = "quad-indices";
 	state.bind.index_buffer = sg_make_buffer(&ibuffer);
 
+
+	// Dynamic buffer for instance data
+	sg_buffer_desc instbuffer{};
+	instbuffer.type = SG_BUFFERTYPE_VERTEXBUFFER;
+	instbuffer.size = MAX_PARTICLES * sizeof(sprite_t);
+	instbuffer.usage = SG_USAGE_STREAM;
+	instbuffer.label = "sprite instances";
+	state.bind.vertex_buffers[1] = sg_make_buffer(&instbuffer);
+
+
 	// a pipeline state object (like a material basis in luxe)
 	sg_pipeline_desc pip{};
-	pip.cull_mode = SG_CULLMODE_NONE;
-	pip.depth.compare = SG_COMPAREFUNC_LESS_EQUAL;
-	pip.depth.write_enabled = true;
+	pip.cull_mode = SG_CULLMODE_BACK;
+	//pip.depth.compare = SG_COMPAREFUNC_LESS_EQUAL;
+	//pip.depth.write_enabled = true;
 	pip.index_type = SG_INDEXTYPE_UINT16;
 	pip.label = "quad-pipeline";
 
@@ -170,6 +175,8 @@ static void init(void)
 	// Instance data buffer
 	pip.layout.attrs[ATTR_vs_inst].format = SG_VERTEXFORMAT_FLOAT3;
 	pip.layout.attrs[ATTR_vs_inst].buffer_index = 1;
+	pip.layout.attrs[ATTR_vs_vel].format = SG_VERTEXFORMAT_FLOAT2;	// Yes, I know. The shader
+	pip.layout.attrs[ATTR_vs_vel].buffer_index = 1;					// doesn't actually need velocity.
 	pip.layout.buffers[1].step_func = SG_VERTEXSTEP_PER_INSTANCE;
 
 	state.pip = sg_make_pipeline(&pip);
@@ -185,7 +192,7 @@ static void init(void)
 	sfetch_request_t request{};
 	request.path = fileutil_get_path("data/king.png", path_buf, sizeof(path_buf));
 	request.callback = fetch_callback;
-	request.buffer = SFETCH_RANGE(state.file_buffer);
+	request.buffer = SFETCH_RANGE(state.image_buffer);
 	sfetch_send(&request);
 }
 
@@ -237,8 +244,66 @@ frame to pump the sokol-fetch message queues.
 */
 static void frame(void)
 {
-	// pump the sokol-fetch message queues, and invoke response callbacks
+	// Pump the sokol-fetch message queues, and invoke response callbacks
 	sfetch_dowork();
+
+	float delta_time = (float)(sapp_frame_duration());
+
+	// Emit new particles
+	for (int i = 0; i < 10; ++i)
+	{
+		if (state.instance_count < MAX_PARTICLES)
+		{
+			float speed = random(1.0f, 2.0f);
+			float rad = random(0.0f, 360.0f) * (float)M_PI / 180.0f;
+
+			state.instances[state.instance_count] = {
+				0.0f, 0.0f, random(0.1f, 0.25f),  // X, Y, Scale
+				cos(rad) * speed, sin(rad) * speed
+			};
+
+			++state.instance_count;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	// Update particles
+	for (int i = 0; i < state.instance_count; ++i)
+	{
+		state.instances[i].x += state.instances[i].velX * delta_time;
+		state.instances[i].y += state.instances[i].velY * delta_time;
+
+		if (state.instances[i].x <= -1.0f)
+		{
+			state.instances[i].x = -0.99f;
+			state.instances[i].velX *= -1.0f;
+		}
+		else if (state.instances[i].x >= 1.0f)
+		{
+			state.instances[i].x = 0.99f;
+			state.instances[i].velX *= -1.0f;
+		}
+
+		if (state.instances[i].y <= -1.0f)
+		{
+			state.instances[i].y = -0.99f;
+			state.instances[i].velY *= -1.0f;
+		}
+		else if (state.instances[i].y >= 1.0f)
+		{
+			state.instances[i].y = 0.99f;
+			state.instances[i].velY *= -1.0f;
+		}
+	}
+
+	// Update the instance data
+	sg_range data = {};
+	data.ptr = state.instances;
+	data.size = (size_t)state.instance_count * sizeof(sprite_t);
+	sg_update_buffer(state.bind.vertex_buffers[1], &data);
 
 	//
 	// Perform frame drawing operations
@@ -250,7 +315,7 @@ static void frame(void)
 	sg_apply_pipeline(state.pip); // Set the material type (i.e. opaque texture material)
 	sg_apply_bindings(&state.bind); // The image, vertices, and indexes
 	// Draw the sprite
-	sg_draw(0, 6, 6); // Base element, Number of elements, instances
+	sg_draw(0, 6, MAX_PARTICLES); // Base element, Number of elements, instances
 
 	// To do sprite instances
 		// 1. Up the instance count
