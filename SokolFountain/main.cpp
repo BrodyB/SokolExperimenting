@@ -9,6 +9,10 @@
 //  and then eventually a lot of textured quads
 //------------------------------------------------------------------------------
 #include <random>
+#define HANDMADE_MATH_IMPLEMENTATION
+#define HANDMADE_MATH_CPP_MODE
+#define HANDMADE_MATH_NO_SSE
+#include "HandmadeMath.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 #define SOKOL_IMPL
@@ -114,18 +118,13 @@ static void init(void)
 	sampler.mag_filter = SG_FILTER_LINEAR;
 	state.bind.fs.samplers[SLOT_smp] = sg_make_sampler(&sampler);
 	
-	// quad vertex buffer with packed texcoords
-	float w = normalize_x(256);
-	float h = normalize_y(256.0f);
-	const float spriteZ = 0.0f;
-
 	// Static vertex geometry buffer
 	const vertex_t vertices[] = {
 		//  x, y, z, u, v
-		{ -w, h, spriteZ, 0.0f, 0.0f},		// Top-Left
-		{ w, h, spriteZ, 1.0f, 0.0f },		// Top-Right
-		{ w, -h, spriteZ, 1.0f, 1.0f },		// Bottom-Right
-		{ -w, -h, spriteZ, 0.0f, 1.0f }		// Bottom-Left
+		{ -0.5f, 0.5f, 1.0f, 0.0f, 0.0f},		// Top-Left
+		{ 0.5f, 0.5f, 1.0f, 1.0f, 0.0f },		// Top-Right
+		{ 0.5f, -0.5f, 1.0f, 1.0f, 1.0f },		// Bottom-Right
+		{ -0.5f, -0.5f, 1.0f, 0.0f, 1.0f }		// Bottom-Left
 	};
 
 	sg_buffer_desc vbuffer{};
@@ -160,8 +159,6 @@ static void init(void)
 	// a pipeline state object (like a material basis in luxe)
 	sg_pipeline_desc pip{};
 	pip.cull_mode = SG_CULLMODE_BACK;
-	//pip.depth.compare = SG_COMPAREFUNC_LESS_EQUAL;
-	//pip.depth.write_enabled = true;
 	pip.index_type = SG_INDEXTYPE_UINT16;
 	pip.label = "quad-pipeline";
 
@@ -254,11 +251,11 @@ static void frame(void)
 	{
 		if (state.instance_count < MAX_PARTICLES)
 		{
-			float speed = random(1.0f, 2.0f);
+			float speed = random(100.0f, 300.0f);
 			float rad = random(0.0f, 360.0f) * (float)M_PI / 180.0f;
 
 			state.instances[state.instance_count] = {
-				0.0f, 0.0f, random(0.1f, 0.25f),  // X, Y, Scale
+				sapp_widthf() * 0.5f, sapp_heightf() * 0.5f, random(96.0f, 148.0f),  // X, Y, Scale
 				cos(rad) * speed, sin(rad) * speed
 			};
 
@@ -275,26 +272,27 @@ static void frame(void)
 	{
 		state.instances[i].x += state.instances[i].velX * delta_time;
 		state.instances[i].y += state.instances[i].velY * delta_time;
+		const float scale = state.instances[i].scale * 0.5f;
 
-		if (state.instances[i].x <= -1.0f)
+		if (state.instances[i].x <= scale)
 		{
-			state.instances[i].x = -0.99f;
+			state.instances[i].x = scale + 0.01f;
 			state.instances[i].velX *= -1.0f;
 		}
-		else if (state.instances[i].x >= 1.0f)
+		else if (state.instances[i].x >= sapp_widthf() - scale)
 		{
-			state.instances[i].x = 0.99f;
+			state.instances[i].x = sapp_widthf() - scale - 0.01f;
 			state.instances[i].velX *= -1.0f;
 		}
 
-		if (state.instances[i].y <= -1.0f)
+		if (state.instances[i].y <= scale)
 		{
-			state.instances[i].y = -0.99f;
+			state.instances[i].y = scale + 0.01f;
 			state.instances[i].velY *= -1.0f;
 		}
-		else if (state.instances[i].y >= 1.0f)
+		else if (state.instances[i].y >= sapp_heightf() - (scale * 0.5f))
 		{
-			state.instances[i].y = 0.99f;
+			state.instances[i].y = sapp_heightf() - (scale * 0.5f) - 0.01f;
 			state.instances[i].velY *= -1.0f;
 		}
 	}
@@ -309,11 +307,25 @@ static void frame(void)
 	// Perform frame drawing operations
 	//
 
+	// compute model-view-projection matrix for vertex shader
+	const float t = (float)(sapp_frame_duration() * 60.0);
+	//hmm_mat4 proj = HMM_Perspective(60.0f, sapp_widthf() / sapp_heightf(), 0.01f, 10.0f);
+	hmm_mat4 proj = HMM_Orthographic(0.0f, sapp_widthf(), 0.0f, sapp_heightf(), 0.0f, 5.0f);
+	hmm_mat4 view = HMM_LookAt(HMM_Vec3(0.0f, 1.5f, 6.0f), HMM_Vec3(0.0f, 0.0f, 0.0f), HMM_Vec3(0.0f, 1.0f, 0.0f));
+	hmm_mat4 view_proj = HMM_MultiplyMat4(proj, view);
+	vs_params_t vs_params;
+	hmm_mat4 rxm = HMM_Rotate(0.0f, HMM_Vec3(1.0f, 0.0f, 0.0f));
+	hmm_mat4 rym = HMM_Rotate(0.0f, HMM_Vec3(0.0f, 1.0f, 0.0f));
+	hmm_mat4 model = HMM_MultiplyMat4(rxm, rym);
+	vs_params.mvp = HMM_MultiplyMat4(view_proj, model);
+
 	// set render target
 	sg_begin_default_pass(&state.pass_action, sapp_width(), sapp_height());
 	// Set the sprite render settings
 	sg_apply_pipeline(state.pip); // Set the material type (i.e. opaque texture material)
 	sg_apply_bindings(&state.bind); // The image, vertices, and indexes
+	sg_apply_uniforms(SG_SHADERSTAGE_VS, SLOT_vs_params, SG_RANGE(vs_params));
+
 	// Draw the sprite
 	sg_draw(0, 6, MAX_PARTICLES); // Base element, Number of elements, instances
 
@@ -349,7 +361,7 @@ sapp_desc sokol_main(int argc, char* argv[])
 	desc.cleanup_cb = cleanup;
 	desc.width = 1280;
 	desc.height = 720;
-	desc.window_title = "PNG QUAD";
+	desc.window_title = "Instance Flood";
 	desc.icon.sokol_default = true;
 	desc.logger.func = slog_func;
 
