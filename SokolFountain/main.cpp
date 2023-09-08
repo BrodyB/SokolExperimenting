@@ -308,8 +308,6 @@ static void frame(void)
 	//
 
 	// compute model-view-projection matrix for vertex shader
-	const float t = (float)(sapp_frame_duration() * 60.0);
-	//hmm_mat4 proj = HMM_Perspective(60.0f, sapp_widthf() / sapp_heightf(), 0.01f, 10.0f);
 	hmm_mat4 proj = HMM_Orthographic(0.0f, sapp_widthf(), 0.0f, sapp_heightf(), 0.0f, 5.0f);
 	hmm_mat4 view = HMM_LookAt(HMM_Vec3(0.0f, 1.5f, 6.0f), HMM_Vec3(0.0f, 0.0f, 0.0f), HMM_Vec3(0.0f, 1.0f, 0.0f));
 	hmm_mat4 view_proj = HMM_MultiplyMat4(proj, view);
@@ -333,10 +331,10 @@ static void frame(void)
 		// 1. Up the instance count
 			// Need to have per-instance data, like position
 
-			// Image images[] // give me several images, as unique handles
-				// Images can be different sizes
-			// ImageArray images; // give me one handle, but with several slices
-				// All images must be the same dimensions
+		// Image images[] // give me several images, as unique handles
+			// Images can be different sizes
+		// ImageArray images; // give me one handle, but with several slices
+			// All images must be the same dimensions
 
 	sg_end_pass();
 
