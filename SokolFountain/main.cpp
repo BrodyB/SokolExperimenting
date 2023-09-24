@@ -28,13 +28,6 @@
 
 #define MAX_PARTICLES (4096)
 
-// File path utility function
-const char* fileutil_get_path(const char* filename, char* buf, size_t buf_size)
-{
-	snprintf(buf, buf_size, "%s", filename);
-	return buf;
-}
-
 // Struct for a sprite instance
 struct sprite_t {
 	float x, y;
