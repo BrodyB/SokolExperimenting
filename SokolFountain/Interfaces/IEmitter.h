@@ -1,27 +1,36 @@
 ﻿#pragma once
 
+#include <sokol_gfx.h>
 #include <vector>
 #include "IModule.h"
 #include "../particleTypes.h"
+
+class ParticleSystem;
 
 class IEmitter
 {
 public:
 #pragma region Public Methods
-    virtual void Tick(float deltaTime) = 0;
+    virtual void Tick(float deltaTime, hmm_mat4* params) = 0;
     virtual void SetOffsetPosition(float x, float y, float z) = 0;
     virtual void SetOffsetRotation(float x, float y, float z) = 0;
 #pragma endregion
 
 protected:
-    // Relative position/rotation from parent System
-    std::vector<float> offsetPos;
-    std::vector<float> offsetRot;
-    
-    // Vertices/indices used for the base particle geometry
-    vertex_t vertices[4];
-    uint16_t indices[6];
+    float* parentPos;
+    float* parentRot;
+    // Relative position from parent System
+    float offsetPos[3] = { 0 };
+    // Relative rotation from parent System
+    float offsetRot[3] = { 0 };
+
+    float lifespanMin;
+    float lifespanMax;
+
+    int32_t indexCount;
+    sg_bindings bindings;
+    sg_pipeline pipeline;
 
     // All effects applied to particle instances
-    std::vector<IModule> modules;
+    // std::vector<IModule> modules;
 };

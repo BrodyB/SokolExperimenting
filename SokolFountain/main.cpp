@@ -8,7 +8,6 @@
 //  Trying to take this from a spinning cube to just showing a textured quad,
 //  and then eventually a lot of textured quads
 //------------------------------------------------------------------------------
-#include <random>
 #define HANDMADE_MATH_IMPLEMENTATION
 #define HANDMADE_MATH_CPP_MODE
 #define HANDMADE_MATH_NO_SSE
@@ -25,6 +24,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../libs/stb/stb_image.h"
 #include "textured.glsl.h"
+#include "Utility.h"
 
 #define MAX_PARTICLES (4096)
 
@@ -33,24 +33,6 @@ const char* fileutil_get_path(const char* filename, char* buf, size_t buf_size)
 {
 	snprintf(buf, buf_size, "%s", filename);
 	return buf;
-}
-
-const float random(float min, float max)
-{
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_real_distribution<> distr(min, max);
-	return (float)distr(gen);
-}
-
-const float normalize_x(float x)
-{
-	return x * (2.0f / sapp_widthf());
-}
-
-const float normalize_y(float y)
-{
-	return y * (2.0f / sapp_heightf());
 }
 
 // Struct for a sprite instance
@@ -199,8 +181,9 @@ static void fetch_callback(const sfetch_response_t* response)
 {
 	if (response->fetched)
 	{
-		/* the file data has been fetched, since we provided a big-enough
-		   buffer we can be sure that all data has been loaded here
+		/* 
+		The file data has been fetched, since we provided a big-enough
+		buffer we can be sure that all data has been loaded here
 		*/
 		int png_width, png_height, num_channels;
 		const int desired_channels = 4;
@@ -326,15 +309,6 @@ static void frame(void)
 
 	// Draw the sprite
 	sg_draw(0, 6, MAX_PARTICLES); // Base element, Number of elements, instances
-
-	// To do sprite instances
-		// 1. Up the instance count
-			// Need to have per-instance data, like position
-
-		// Image images[] // give me several images, as unique handles
-			// Images can be different sizes
-		// ImageArray images; // give me one handle, but with several slices
-			// All images must be the same dimensions
 
 	sg_end_pass();
 
