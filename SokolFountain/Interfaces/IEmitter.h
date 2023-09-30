@@ -1,11 +1,12 @@
 ﻿#pragma once
 
-#include <sokol_gfx.h>
 #include <vector>
-#include "IModule.h"
-#include "../particleTypes.h"
 
 class ParticleSystem;
+
+union hmm_mat4;
+struct sg_bindings;
+struct sg_pipeline;
 
 class IEmitter
 {
@@ -28,8 +29,8 @@ protected:
     float lifespanMax;
 
     int32_t indexCount;
-    sg_bindings bindings;
-    sg_pipeline pipeline;
+    sg_bindings* bindings;
+    sg_pipeline* pipeline;
 
     // All effects applied to particle instances
     // std::vector<IModule> modules;

@@ -1,4 +1,5 @@
 ﻿#include "ParticleSystem.h"
+#include "HandmadeMath.h"
 
 #include "EmitterBad.h"
 

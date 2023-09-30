@@ -25,6 +25,7 @@
 #include "../libs/stb/stb_image.h"
 #include "textured.glsl.h"
 #include "Utility.h"
+#include "ParticleSystem.h"
 
 #define MAX_PARTICLES (4096)
 
@@ -45,13 +46,6 @@ static struct
 	sprite_t instances[MAX_PARTICLES];
 	int instance_count;
 } state;
-
-// Struct for a sprite vertex
-typedef struct
-{
-	float x, y, z;
-	float u, v;
-} vertex_t;
 
 // Forward-declare the callback when sokol_fetch is done
 // loading the PNG

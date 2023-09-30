@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <vector>
 #include "Interfaces/IEmitter.h"
+#include "ParticleTypes.h"
 
 class EmitterBad : public IEmitter
 {

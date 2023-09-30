@@ -4,6 +4,8 @@
 #include "EmitterBad.h"
 #include "Interfaces/IEmitter.h"
 
+typedef union hmm_mat4;
+
 class ParticleSystem
 {
 public:

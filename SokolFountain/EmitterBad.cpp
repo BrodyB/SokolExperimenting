@@ -1,5 +1,7 @@
 ﻿#include "EmitterBad.h"
 
+#include "sokol_gfx.h"
+#include "HandmadeMath.h"
 #include "ParticleSystem.h"
 #include "ParticleTypes.h"
 #include "textured.glsl.h"
@@ -15,14 +17,14 @@ EmitterBad::EmitterBad(ParticleSystem& system, const vertex_t* vertices, const u
     vbuffer.type = SG_BUFFERTYPE_VERTEXBUFFER;
     vbuffer.data = SG_RANGE(*vertices);
     vbuffer.label = "emitter vertices";
-    bindings.vertex_buffers[0] = sg_make_buffer(&vbuffer);
+    bindings->vertex_buffers[0] = sg_make_buffer(&vbuffer);
 
     // Create the index buffer
     sg_buffer_desc ibuffer{};
     ibuffer.type = SG_BUFFERTYPE_INDEXBUFFER;
     ibuffer.data = SG_RANGE(indices);
     ibuffer.label = "emitter indices";
-    bindings.index_buffer = sg_make_buffer(&ibuffer);
+    bindings->index_buffer = sg_make_buffer(&ibuffer);
     indexCount = sizeof(indices);
 
     // Dynamic buffer for instance data
@@ -31,7 +33,7 @@ EmitterBad::EmitterBad(ParticleSystem& system, const vertex_t* vertices, const u
     instbuffer.size = maxParticles * sizeof(Particle);
     instbuffer.usage = SG_USAGE_STREAM;
     instbuffer.label = "particle instances";
-    bindings.vertex_buffers[1] = sg_make_buffer(&instbuffer);
+    bindings->vertex_buffers[1] = sg_make_buffer(&instbuffer);
 
     // a pipeline state object (like a material basis in luxe)
     sg_pipeline_desc pip{};
@@ -52,7 +54,7 @@ EmitterBad::EmitterBad(ParticleSystem& system, const vertex_t* vertices, const u
     pip.layout.attrs[ATTR_vs_vel].format = SG_VERTEXFORMAT_FLOAT2;	// Yes, I know. The shader
     pip.layout.attrs[ATTR_vs_vel].buffer_index = 1;					// doesn't actually need velocity.
     pip.layout.buffers[1].step_func = SG_VERTEXSTEP_PER_INSTANCE;
-    pipeline = sg_make_pipeline(&pip);
+    *pipeline = sg_make_pipeline(&pip);
     
     lifespanMin = durationMin;
     lifespanMax = durationMax;
@@ -112,8 +114,8 @@ void EmitterBad::Tick(float deltaTime, hmm_mat4* params)
     */
 
     // Draw emitter particles
-    sg_apply_pipeline(pipeline);
-    sg_apply_bindings(&bindings);
+    sg_apply_pipeline(*pipeline);
+    sg_apply_bindings(*bindings);
     vs_params_t vs_params;
     vs_params.mvp = *params;
     sg_apply_uniforms(SG_SHADERSTAGE_VS, SLOT_vs_params, SG_RANGE(vs_params));
