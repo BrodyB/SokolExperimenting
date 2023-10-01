@@ -7,33 +7,33 @@
 #include "textured.glsl.h"
 #include "Utility.h"
 
-EmitterBad::EmitterBad(ParticleSystem& system, const vertex_t* vertices, const uint32_t* indices, float durationMin, float durationMax, int32_t maxParticles)
+EmitterBad::EmitterBad(ParticleSystem* system, const std::vector<vertex_t>* vertices, const std::vector<uint32_t>* indices, float durationMin, float durationMax, int32_t maxParticles)
 {
-    parentPos = system.position;
-    parentRot = system.rotation;
+    parentPos = system->position;
+    parentRot = system->rotation;
 
     // Create the vertex buffer
-    sg_buffer_desc vbuffer{};
+    sg_buffer_desc vbuffer;
     vbuffer.type = SG_BUFFERTYPE_VERTEXBUFFER;
     vbuffer.data = SG_RANGE(*vertices);
     vbuffer.label = "emitter vertices";
-    bindings->vertex_buffers[0] = sg_make_buffer(&vbuffer);
+    bindings.vertex_buffers[0] = sg_make_buffer(&vbuffer);
 
     // Create the index buffer
-    sg_buffer_desc ibuffer{};
+    sg_buffer_desc ibuffer;
     ibuffer.type = SG_BUFFERTYPE_INDEXBUFFER;
-    ibuffer.data = SG_RANGE(indices);
+    ibuffer.data = SG_RANGE(*indices);
     ibuffer.label = "emitter indices";
-    bindings->index_buffer = sg_make_buffer(&ibuffer);
-    indexCount = sizeof(indices);
+    bindings.index_buffer = sg_make_buffer(&ibuffer);
+    indexCount = static_cast<int32_t>(indices->size());
 
     // Dynamic buffer for instance data
-    sg_buffer_desc instbuffer{};
+    sg_buffer_desc instbuffer;
     instbuffer.type = SG_BUFFERTYPE_VERTEXBUFFER;
     instbuffer.size = maxParticles * sizeof(Particle);
     instbuffer.usage = SG_USAGE_STREAM;
     instbuffer.label = "particle instances";
-    bindings->vertex_buffers[1] = sg_make_buffer(&instbuffer);
+    bindings.vertex_buffers[1] = sg_make_buffer(&instbuffer);
 
     // a pipeline state object (like a material basis in luxe)
     sg_pipeline_desc pip{};
@@ -51,10 +51,10 @@ EmitterBad::EmitterBad(ParticleSystem& system, const vertex_t* vertices, const u
     // Instance data buffer
     pip.layout.attrs[ATTR_vs_inst].format = SG_VERTEXFORMAT_FLOAT3;
     pip.layout.attrs[ATTR_vs_inst].buffer_index = 1;
-    pip.layout.attrs[ATTR_vs_vel].format = SG_VERTEXFORMAT_FLOAT2;	// Yes, I know. The shader
-    pip.layout.attrs[ATTR_vs_vel].buffer_index = 1;					// doesn't actually need velocity.
+    pip.layout.attrs[ATTR_vs_vel].format = SG_VERTEXFORMAT_FLOAT2;
+    pip.layout.attrs[ATTR_vs_vel].buffer_index = 1;
     pip.layout.buffers[1].step_func = SG_VERTEXSTEP_PER_INSTANCE;
-    *pipeline = sg_make_pipeline(&pip);
+    pipeline = sg_make_pipeline(&pip);
     
     lifespanMin = durationMin;
     lifespanMax = durationMax;
@@ -101,17 +101,7 @@ void EmitterBad::Tick(float deltaTime, hmm_mat4* params)
             particles.erase(particles.begin() + i);
             continue;
         }
-
-        // Create general data version of particle
-        std::vector<int32_t> pData;
-        pData.push_back(particle->x);
-
-        for (IModule module : modules)
-        {
-            
-        }
     }
-    */
 
     // Draw emitter particles
     sg_apply_pipeline(*pipeline);
@@ -120,6 +110,7 @@ void EmitterBad::Tick(float deltaTime, hmm_mat4* params)
     vs_params.mvp = *params;
     sg_apply_uniforms(SG_SHADERSTAGE_VS, SLOT_vs_params, SG_RANGE(vs_params));
     sg_draw(0, indexCount, static_cast<int>(particles.size())); // Base element, Number of elements, instances
+    */
 }
 
 void EmitterBad::SetOffsetPosition(float x, float y, float z)

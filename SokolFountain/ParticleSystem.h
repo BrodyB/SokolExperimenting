@@ -4,7 +4,7 @@
 #include "EmitterBad.h"
 #include "Interfaces/IEmitter.h"
 
-typedef union hmm_mat4;
+union hmm_mat4;
 
 class ParticleSystem
 {
@@ -14,10 +14,10 @@ public:
 
     ParticleSystem();
     
-    void Tick(float deltaTime, hmm_mat4* params);
-    void AddEmitter(vertex_t vertices[], uint32_t indices[]);
-    void Start();
-    void Stop(bool immediately = false);
+    void Tick(float deltaTime, hmm_mat4* params) const;
+    void AddEmitter(std::vector<vertex_t>* vertices, std::vector<uint32_t>* indices);
+    void Start() const;
+    void Stop(bool immediately = false) const;
 
 protected:
     std::vector<EmitterBad> emitters;

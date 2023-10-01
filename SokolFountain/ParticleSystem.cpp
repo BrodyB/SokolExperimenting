@@ -4,10 +4,9 @@
 #include "EmitterBad.h"
 
 ParticleSystem::ParticleSystem()
-{
-}
+= default;
 
-void ParticleSystem::Tick(float deltaTime, hmm_mat4* params)
+void ParticleSystem::Tick(float deltaTime, hmm_mat4* params) const
 {
     for (EmitterBad emitter : emitters)
     {
@@ -15,27 +14,23 @@ void ParticleSystem::Tick(float deltaTime, hmm_mat4* params)
     }
 }
 
-void ParticleSystem::AddEmitter(vertex_t vertices[], uint32_t indices[])
+void ParticleSystem::AddEmitter(std::vector<vertex_t>* vertices, std::vector<uint32_t>* indices)
 {
-    // emitters.push_back(new EmitterBad(this, vertices, indices, 2.0f, 4.0f, 512));
+    emitters.emplace_back(this, vertices, indices, 2.0f, 4.0f, 512);
 }
 
-void ParticleSystem::Start()
+void ParticleSystem::Start() const
 {
-    /*
     for (EmitterBad emitter : emitters)
     {
         emitter.Start();
     }
-    */
 }
 
-void ParticleSystem::Stop(bool immediately)
+void ParticleSystem::Stop(bool immediately) const
 {
-    /*
     for (EmitterBad emitter : emitters)
     {
         emitter.Stop();
     }
-    */
 }

@@ -3,10 +3,13 @@
 #include "Interfaces/IEmitter.h"
 #include "ParticleTypes.h"
 
+struct sg_bindings;
+struct sg_pipeline;
+
 class EmitterBad : public IEmitter
 {
 public: // Constructor & Methods
-    EmitterBad(ParticleSystem& system, const vertex_t* vertices, const uint32_t* indices, float durationMin, float durationMax, int32_t maxParticles);
+    EmitterBad(ParticleSystem* system, const std::vector<vertex_t>* vertices, const std::vector<uint32_t>* indices, float durationMin, float durationMax, int32_t maxParticles);
     void Start();
     void Stop(bool immediately = false);
     void Tick(float deltaTime, hmm_mat4* params) override;
@@ -32,6 +35,8 @@ private:
         float r, g, b, a;
     };
 
+    sg_bindings bindings;
+    sg_pipeline pipeline;
     std::vector<Particle> particles;
     std::vector<ParticleData> particleData;
 };
