@@ -1,10 +1,9 @@
 ﻿#pragma once
+
 #include <vector>
 #include "Interfaces/IEmitter.h"
 #include "ParticleTypes.h"
-
-struct sg_bindings;
-struct sg_pipeline;
+#include "sokol_gfx.h"
 
 class EmitterBad : public IEmitter
 {

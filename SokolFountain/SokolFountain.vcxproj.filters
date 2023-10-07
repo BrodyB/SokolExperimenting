@@ -9,12 +9,24 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="Source Files\sokol">
+      <UniqueIdentifier>{98e068e4-7304-43d8-9c0f-c185f0ca8433}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ScaleModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EmitterBad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sokol.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -25,11 +37,47 @@
     <ClInclude Include="particleTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IModule.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ScaleModule.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EmitterBad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\IEmitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Interfaces\IModule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sokol\sokol_app.h">
+      <Filter>Source Files\sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sokol\sokol_args.h">
+      <Filter>Source Files\sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sokol\sokol_audio.h">
+      <Filter>Source Files\sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sokol\sokol_fetch.h">
+      <Filter>Source Files\sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sokol\sokol_gfx.h">
+      <Filter>Source Files\sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sokol\sokol_glue.h">
+      <Filter>Source Files\sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sokol\sokol_log.h">
+      <Filter>Source Files\sokol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sokol\sokol_time.h">
+      <Filter>Source Files\sokol</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

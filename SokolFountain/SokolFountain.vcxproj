@@ -72,10 +72,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ExternalIncludePath>..\sokol\;..\libs\;$(ExternalIncludePath)</ExternalIncludePath>
+    <ExternalIncludePath>
+    </ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ExternalIncludePath>..\sokol\;..\libs\;$(ExternalIncludePath)</ExternalIncludePath>
+    <ExternalIncludePath>
+    </ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -111,6 +113,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\sokol\;..\libs\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,6 +128,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>..\sokol\;..\libs\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -138,8 +142,17 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="ScaleModule.cpp" />
+    <ClCompile Include="sokol.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\sokol\sokol_app.h" />
+    <ClInclude Include="..\sokol\sokol_args.h" />
+    <ClInclude Include="..\sokol\sokol_audio.h" />
+    <ClInclude Include="..\sokol\sokol_fetch.h" />
+    <ClInclude Include="..\sokol\sokol_gfx.h" />
+    <ClInclude Include="..\sokol\sokol_glue.h" />
+    <ClInclude Include="..\sokol\sokol_log.h" />
+    <ClInclude Include="..\sokol\sokol_time.h" />
     <ClInclude Include="EmitterBad.h" />
     <ClInclude Include="Interfaces\IEmitter.h" />
     <ClInclude Include="Interfaces\IModule.h" />
