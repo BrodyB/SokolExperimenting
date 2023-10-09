@@ -8,12 +8,9 @@
 //  Trying to take this from a spinning cube to just showing a textured quad,
 //  and then eventually a lot of textured quads
 //------------------------------------------------------------------------------
-#define HANDMADE_MATH_IMPLEMENTATION
-#define HANDMADE_MATH_CPP_MODE
-#define HANDMADE_MATH_NO_SSE
-#include "HandmadeMath.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include "HandmadeMath.h"
 #include "sokol_gfx.h"
 #include "sokol_app.h"
 #include "sokol_fetch.h"
