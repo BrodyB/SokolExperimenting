@@ -1,21 +1,31 @@
 ﻿#pragma once
 
 #include <vector>
-#include "Interfaces/IEmitter.h"
+#include "HandmadeMath.h"
 #include "ParticleTypes.h"
 #include "sokol_gfx.h"
 
-class EmitterBad : public IEmitter
+class EmitterBad
 {
 public: // Constructor & Methods
-    EmitterBad(ParticleSystem* system, const std::vector<vertex_t>* vertices, const std::vector<uint32_t>* indices, float durationMin, float durationMax, int32_t maxParticles);
+    EmitterBad(const std::vector<vertex_t>* vertices, const std::vector<uint32_t>* indices, float durationMin, float durationMax, int32_t maxParticles);
     void Start();
     void Stop(bool immediately = false);
-    void Tick(float deltaTime, hmm_mat4* params) override;
-    void SetOffsetPosition(float x, float y, float z) override;
-    void SetOffsetRotation(float x, float y, float z) override;
+    void Tick(float deltaTime, hmm_mat4* params);
+    void SetOffsetPosition(float x, float y, float z);
+    void SetOffsetRotation(float x, float y, float z);
     
 private:
+    // float* parentPos;
+    // float* parentRot;
+    // Relative position from parent System
+    float offsetPos[3] = { 0 };
+    // Relative rotation from parent System
+    float offsetRot[3] = { 0 };
+
+    float lifespanMin;
+    float lifespanMax;
+    int32_t indexCount;
     
     struct Particle
     {
@@ -36,6 +46,5 @@ private:
 
     sg_bindings bindings;
     sg_pipeline pipeline;
-    std::vector<Particle> particles;
     std::vector<ParticleData> particleData;
 };

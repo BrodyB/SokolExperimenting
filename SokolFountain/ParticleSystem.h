@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <vector>
 
+#include "ParticleTypes.h"
 #include "EmitterBad.h"
-#include "Interfaces/IEmitter.h"
 
 union hmm_mat4;
 

@@ -8,12 +8,9 @@
 //  Trying to take this from a spinning cube to just showing a textured quad,
 //  and then eventually a lot of textured quads
 //------------------------------------------------------------------------------
-#define _USE_MATH_DEFINES
-#include <math.h>
 #include "HandmadeMath.h"
 #include "sokol_gfx.h"
 #include "sokol_app.h"
-#include "sokol_fetch.h"
 #include "sokol_log.h"
 #include "sokol_glue.h"
 #include "textured.glsl.h"
@@ -56,6 +53,7 @@ static void init(void)
 	};
 
 	state.particles.AddEmitter(&vertices, &indices);
+	state.particles.Start();
 }
 
 /*
@@ -80,7 +78,7 @@ static void frame(void)
 
 	// set render target
 	sg_begin_default_pass(&state.pass_action, sapp_width(), sapp_height());
-	// Set the sprite render settings
+	state.particles.Tick(delta_time, &vs_params.mvp);
 
 	sg_end_pass();
 
@@ -91,7 +89,6 @@ static void frame(void)
 // Cleanup on app shutdown
 static void cleanup(void)
 {
-	sfetch_shutdown();
 	sg_shutdown();
 }
 

@@ -2,25 +2,29 @@
 
 #include "sokol_gfx.h"
 #include "HandmadeMath.h"
-#include "ParticleSystem.h"
+// #include "ParticleSystem.h"
 #include "ParticleTypes.h"
 #include "textured.glsl.h"
 #include "Utility.h"
 
-EmitterBad::EmitterBad(ParticleSystem* system, const std::vector<vertex_t>* vertices, const std::vector<uint32_t>* indices, float durationMin, float durationMax, int32_t maxParticles)
+EmitterBad::EmitterBad(const std::vector<vertex_t>* vertices, const std::vector<uint32_t>* indices, float durationMin, float durationMax, int32_t maxParticles)
 {
-    parentPos = system->position;
-    parentRot = system->rotation;
+    // parentPos = system->position;
+    // parentRot = system->rotation;
+
+    lifespanMin = durationMin;
+    lifespanMax = durationMax;
+    particleData.resize(maxParticles);
 
     // Create the vertex buffer
-    sg_buffer_desc vbuffer;
+    sg_buffer_desc vbuffer = { 0 };
     vbuffer.type = SG_BUFFERTYPE_VERTEXBUFFER;
     vbuffer.data = SG_RANGE(*vertices);
     vbuffer.label = "emitter vertices";
     bindings.vertex_buffers[0] = sg_make_buffer(&vbuffer);
 
     // Create the index buffer
-    sg_buffer_desc ibuffer;
+    sg_buffer_desc ibuffer = { 0 };
     ibuffer.type = SG_BUFFERTYPE_INDEXBUFFER;
     ibuffer.data = SG_RANGE(*indices);
     ibuffer.label = "emitter indices";
@@ -28,7 +32,7 @@ EmitterBad::EmitterBad(ParticleSystem* system, const std::vector<vertex_t>* vert
     indexCount = static_cast<int32_t>(indices->size());
 
     // Dynamic buffer for instance data
-    sg_buffer_desc instbuffer;
+    sg_buffer_desc instbuffer = { 0 };
     instbuffer.type = SG_BUFFERTYPE_VERTEXBUFFER;
     instbuffer.size = maxParticles * sizeof(Particle);
     instbuffer.usage = SG_USAGE_STREAM;
@@ -41,25 +45,18 @@ EmitterBad::EmitterBad(ParticleSystem* system, const std::vector<vertex_t>* vert
     pip.index_type = SG_INDEXTYPE_UINT16;
     pip.label = "emitter pipeline";
 
-    pip.shader = sg_make_shader(texture_shader_desc(sg_query_backend()));
+    pip.shader = sg_make_shader(instancing_shader_desc(sg_query_backend()));
     // Vertex buffer
     pip.layout.attrs[ATTR_vs_pos].format = SG_VERTEXFORMAT_FLOAT3;
     pip.layout.attrs[ATTR_vs_pos].buffer_index = 0;
-    pip.layout.attrs[ATTR_vs_texcoord0].format = SG_VERTEXFORMAT_FLOAT2;
-    pip.layout.attrs[ATTR_vs_texcoord0].buffer_index = 0;
+    pip.layout.attrs[ATTR_vs_color0].format = SG_VERTEXFORMAT_FLOAT4;
+    pip.layout.attrs[ATTR_vs_color0].buffer_index = 0;
 	
     // Instance data buffer
-    pip.layout.attrs[ATTR_vs_inst].format = SG_VERTEXFORMAT_FLOAT3;
-    pip.layout.attrs[ATTR_vs_inst].buffer_index = 1;
-    pip.layout.attrs[ATTR_vs_vel].format = SG_VERTEXFORMAT_FLOAT2;
-    pip.layout.attrs[ATTR_vs_vel].buffer_index = 1;
+    pip.layout.attrs[ATTR_vs_inst_pos].format = SG_VERTEXFORMAT_FLOAT3;
+    pip.layout.attrs[ATTR_vs_inst_pos].buffer_index = 1;
     pip.layout.buffers[1].step_func = SG_VERTEXSTEP_PER_INSTANCE;
     pipeline = sg_make_pipeline(&pip);
-    
-    lifespanMin = durationMin;
-    lifespanMax = durationMax;
-    particles.resize(maxParticles);
-    particleData.resize(maxParticles);
 }
 
 void EmitterBad::Start()

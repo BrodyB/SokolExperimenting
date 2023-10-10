@@ -16,7 +16,7 @@ void ParticleSystem::Tick(float deltaTime, hmm_mat4* params) const
 
 void ParticleSystem::AddEmitter(std::vector<vertex_t>* vertices, std::vector<uint32_t>* indices)
 {
-    emitters.emplace_back(this, vertices, indices, 2.0f, 4.0f, 512);
+    emitters.emplace_back(vertices, indices, 2.0f, 4.0f, 512);
 }
 
 void ParticleSystem::Start() const

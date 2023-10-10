@@ -154,7 +154,6 @@
     <ClInclude Include="..\sokol\sokol_log.h" />
     <ClInclude Include="..\sokol\sokol_time.h" />
     <ClInclude Include="EmitterBad.h" />
-    <ClInclude Include="Interfaces\IEmitter.h" />
     <ClInclude Include="Interfaces\IModule.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="ParticleTypes.h" />
