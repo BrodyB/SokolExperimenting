@@ -1,27 +1,64 @@
-@vs vs
-in vec4 pos;
-in vec2 texcoord0;
-in vec3 inst;
+@ctype mat4 hmm_mat4
 
-out vec2 uv;
+@vs vs
+uniform vs_params {
+    mat4 mvp;
+};
+
+in vec4 pos;
+in vec4 color0;
+in vec4 inst_pos;
+
+out vec4 color;
 
 void main() {
     // gl_position = x, y, z, scale
-    gl_Position = vec4((pos.xy * inst.z) + inst.xy, pos.z, pos.w);
-    uv = texcoord0;
+    gl_Position = mvp * (vec4((pos.xy * inst_pos.z) + inst_pos.xy, pos.z, pos.w));
+    color = color0;
 }
 @end
 
 @fs fs
-uniform texture2D tex;
-uniform sampler smp;
-
-in vec2 uv;
+in vec4 color;
 out vec4 frag_color;
 
 void main() {
-    frag_color = texture(sampler2D(tex, smp), uv);
+    frag_color = color;
 }
 @end
 
-@program texture vs fs
+@program instancing vs fs
+
+//------------------------------------------------------------------------------
+//  shaders for instancing-sapp sample
+//------------------------------------------------------------------------------
+/*
+@ctype mat4 hmm_mat4
+
+@vs vs
+uniform vs_params {
+    mat4 mvp;
+};
+
+in vec3 pos;
+in vec4 color0;
+in vec3 inst_pos;
+
+out vec4 color;
+
+void main() {
+    gl_Position = mvp * (vec4((pos.xy) + inst_pos.xy, pos.z, 0));
+    color = color0;
+}
+@end
+
+@fs fs
+in vec4 color;
+out vec4 frag_color;
+void main() {
+    frag_color = color;
+}
+@end
+
+@program instancing vs fs
+*/

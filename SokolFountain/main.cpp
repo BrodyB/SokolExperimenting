@@ -70,15 +70,15 @@ static void frame(void)
 	hmm_mat4 proj = HMM_Orthographic(0.0f, sapp_widthf(), 0.0f, sapp_heightf(), 0.0f, 5.0f);
 	hmm_mat4 view = HMM_LookAt(HMM_Vec3(0.0f, 1.5f, 6.0f), HMM_Vec3(0.0f, 0.0f, 0.0f), HMM_Vec3(0.0f, 1.0f, 0.0f));
 	hmm_mat4 view_proj = HMM_MultiplyMat4(proj, view);
-	vs_params_t vs_params;
 	hmm_mat4 rxm = HMM_Rotate(0.0f, HMM_Vec3(1.0f, 0.0f, 0.0f));
 	hmm_mat4 rym = HMM_Rotate(0.0f, HMM_Vec3(0.0f, 1.0f, 0.0f));
 	hmm_mat4 model = HMM_MultiplyMat4(rxm, rym);
-	vs_params.mvp = HMM_MultiplyMat4(view_proj, model);
+
+	hmm_mat4 mvp = HMM_MultiplyMat4(view_proj, model);
 
 	// set render target
 	sg_begin_default_pass(&state.pass_action, sapp_width(), sapp_height());
-	state.particles.Tick(delta_time, &vs_params.mvp);
+	state.particles.Tick(delta_time, mvp);
 
 	sg_end_pass();
 

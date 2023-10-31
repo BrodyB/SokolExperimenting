@@ -41,19 +41,19 @@ EmitterBad::EmitterBad(const std::vector<vertex_t>* vertices, const std::vector<
 
     // a pipeline state object (like a material basis in luxe)
     sg_pipeline_desc pip{};
-    pip.cull_mode = SG_CULLMODE_BACK;
+    pip.cull_mode = SG_CULLMODE_NONE;
     pip.index_type = SG_INDEXTYPE_UINT16;
     pip.label = "emitter pipeline";
 
     pip.shader = sg_make_shader(instancing_shader_desc(sg_query_backend()));
     // Vertex buffer
-    pip.layout.attrs[ATTR_vs_pos].format = SG_VERTEXFORMAT_FLOAT3;
+    pip.layout.attrs[ATTR_vs_pos].format = SG_VERTEXFORMAT_FLOAT4;
     pip.layout.attrs[ATTR_vs_pos].buffer_index = 0;
     pip.layout.attrs[ATTR_vs_color0].format = SG_VERTEXFORMAT_FLOAT4;
     pip.layout.attrs[ATTR_vs_color0].buffer_index = 0;
 	
     // Instance data buffer
-    pip.layout.attrs[ATTR_vs_inst_pos].format = SG_VERTEXFORMAT_FLOAT3;
+    pip.layout.attrs[ATTR_vs_inst_pos].format = SG_VERTEXFORMAT_FLOAT4;
     pip.layout.attrs[ATTR_vs_inst_pos].buffer_index = 1;
     pip.layout.buffers[1].step_func = SG_VERTEXSTEP_PER_INSTANCE;
     pipeline = sg_make_pipeline(&pip);
@@ -80,7 +80,7 @@ void EmitterBad::Stop(bool immediately)
     
 }
 
-void EmitterBad::Tick(float deltaTime, hmm_mat4* params)
+void EmitterBad::Tick(float deltaTime, hmm_mat4& params)
 {
     /*
     for (int i = 0; i < static_cast<int>(particles.size()); ++i)
@@ -99,15 +99,15 @@ void EmitterBad::Tick(float deltaTime, hmm_mat4* params)
             continue;
         }
     }
+    */
 
     // Draw emitter particles
-    sg_apply_pipeline(*pipeline);
-    sg_apply_bindings(*bindings);
+    sg_apply_pipeline(pipeline);
+    sg_apply_bindings(bindings);
     vs_params_t vs_params;
-    vs_params.mvp = *params;
+    vs_params.mvp = params;
     sg_apply_uniforms(SG_SHADERSTAGE_VS, SLOT_vs_params, SG_RANGE(vs_params));
-    sg_draw(0, indexCount, static_cast<int>(particles.size())); // Base element, Number of elements, instances
-    */
+    sg_draw(0, indexCount, static_cast<int>(particleData.size())); // Base element, Number of elements, instances
 }
 
 void EmitterBad::SetOffsetPosition(float x, float y, float z)

@@ -6,7 +6,7 @@
 ParticleSystem::ParticleSystem()
 = default;
 
-void ParticleSystem::Tick(float deltaTime, hmm_mat4* params) const
+void ParticleSystem::Tick(float deltaTime, hmm_mat4& params) const
 {
     for (EmitterBad emitter : emitters)
     {

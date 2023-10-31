@@ -11,7 +11,7 @@ public: // Constructor & Methods
     EmitterBad(const std::vector<vertex_t>* vertices, const std::vector<uint32_t>* indices, float durationMin, float durationMax, int32_t maxParticles);
     void Start();
     void Stop(bool immediately = false);
-    void Tick(float deltaTime, hmm_mat4* params);
+    void Tick(float deltaTime, hmm_mat4& params);
     void SetOffsetPosition(float x, float y, float z);
     void SetOffsetRotation(float x, float y, float z);
     
