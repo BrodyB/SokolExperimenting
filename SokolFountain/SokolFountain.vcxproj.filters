@@ -43,9 +43,6 @@
     <ClInclude Include="EmitterBad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Interfaces\IEmitter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Interfaces\IModule.h">
       <Filter>Header Files</Filter>
     </ClInclude>

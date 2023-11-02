@@ -1,6 +1,9 @@
 ﻿#pragma once
 
 #include <random>
+#include "sokol_log.h"
+
+#define LOG(msg) slog_func("fountain", 3, 0, msg, __LINE__, __FILE__, nullptr)
 
 inline float random(float min, float max)
 {

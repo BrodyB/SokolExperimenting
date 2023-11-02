@@ -16,6 +16,9 @@ EmitterBad::EmitterBad(const std::vector<vertex_t>* vertices, const std::vector<
     lifespanMax = durationMax;
     particleData.resize(maxParticles);
 
+    bindings = { 0 };
+    pipeline = { 0 };
+
     // Create the vertex buffer
     sg_buffer_desc vbuffer = { 0 };
     vbuffer.type = SG_BUFFERTYPE_VERTEXBUFFER;
@@ -80,7 +83,7 @@ void EmitterBad::Stop(bool immediately)
     
 }
 
-void EmitterBad::Tick(float deltaTime, hmm_mat4& params)
+void EmitterBad::Tick(float deltaTime, hmm_mat4 params)
 {
     /*
     for (int i = 0; i < static_cast<int>(particles.size()); ++i)

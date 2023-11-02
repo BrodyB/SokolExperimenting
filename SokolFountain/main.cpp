@@ -15,6 +15,7 @@
 #include "sokol_glue.h"
 #include "textured.glsl.h"
 #include "ParticleSystem.h"
+#include "Utility.h"
 
 #define MAX_PARTICLES (4096)
 
@@ -54,6 +55,8 @@ static void init(void)
 
 	state.particles.AddEmitter(&vertices, &indices);
 	state.particles.Start();
+
+	LOG("Butts");
 }
 
 /*
