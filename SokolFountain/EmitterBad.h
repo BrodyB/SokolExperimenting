@@ -41,7 +41,7 @@ private:
     struct ParticleData
     {
         float x, y, z, scale;
-        //float r, g, b, a;
+        float r, g, b, a;
     };
 
     sg_bindings bindings;

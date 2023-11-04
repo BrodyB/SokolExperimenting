@@ -28,11 +28,11 @@ static struct
 
 // Static vertex geometry buffer
 static std::vector<vertex_t> vertices = {
-	//  x, y, z, u, v
-	{ -0.5f, 0.5f, 1.0f },	// Top-Left
-	{ 0.5f, 0.5f, 1.0f },	// Top-Right
-	{ 0.5f, -0.5f, 1.0f },	// Bottom-Right
-	{ -0.5f, -0.5f, 1.0f }	// Bottom-Left
+	//  x, y, z, scale
+	{ -0.5f, 0.5f, 1.0f, 1.0f },	// Top-Left
+	{ 0.5f, 0.5f, 1.0f, 1.0f },		// Top-Right
+	{ 0.5f, -0.5f, 1.0f, 1.0f },	// Bottom-Right
+	{ -0.5f, -0.5f, 1.0f, 1.0f }	// Bottom-Left
 };
 
 // create an index buffer for the quad
@@ -54,7 +54,6 @@ static void init(void)
 	state.pass_action.colors[0].clear_value = { 0.2f, 0.2f, 0.4f, 1.0f };
 
 	state.particles.AddEmitter(&vertices, &indices);
-	state.particles.Start();
 
 	LOG("Butts");
 }
@@ -70,12 +69,10 @@ static void frame(void)
 	float delta_time = static_cast<float>(sapp_frame_duration());
 
 	// compute model-view-projection matrix for vertex shader
-	hmm_mat4 proj = HMM_Orthographic(0.0f, sapp_widthf(), 0.0f, sapp_heightf(), 0.0f, 5.0f);
-	hmm_mat4 view = HMM_LookAt(HMM_Vec3(0.0f, 1.5f, 6.0f), HMM_Vec3(0.0f, 0.0f, 0.0f), HMM_Vec3(0.0f, 1.0f, 0.0f));
+	hmm_mat4 proj = HMM_Orthographic(-sapp_widthf() * 0.5f, sapp_widthf() * 0.5f, -sapp_heightf() * 0.5f, sapp_heightf() * 0.5f, -5.0f, 5.0f);
+	hmm_mat4 view = HMM_Mat4d(1); //HMM_LookAt(HMM_Vec3(0.0f, 0.0f, 0.0f), HMM_Vec3(0.0f, 0.0f, 0.0f), HMM_Vec3(0.0f, 1.0f, 0.0f));
 	hmm_mat4 view_proj = HMM_MultiplyMat4(proj, view);
-	hmm_mat4 rxm = HMM_Rotate(0.0f, HMM_Vec3(1.0f, 0.0f, 0.0f));
-	hmm_mat4 rym = HMM_Rotate(0.0f, HMM_Vec3(0.0f, 1.0f, 0.0f));
-	hmm_mat4 model = HMM_MultiplyMat4(rxm, rym);
+	hmm_mat4 model = HMM_Mat4d(1);
 
 	hmm_mat4 mvp = HMM_MultiplyMat4(view_proj, model);
 
