@@ -26,6 +26,20 @@ static struct
 	ParticleSystem particles;
 } state;
 
+// Static vertex geometry buffer
+static std::vector<vertex_t> vertices = {
+	//  x, y, z, u, v
+	{ -0.5f, 0.5f, 1.0f },	// Top-Left
+	{ 0.5f, 0.5f, 1.0f },	// Top-Right
+	{ 0.5f, -0.5f, 1.0f },	// Bottom-Right
+	{ -0.5f, -0.5f, 1.0f }	// Bottom-Left
+};
+
+// create an index buffer for the quad
+static std::vector<uint16_t> indices = {
+	0, 1, 2,  0, 2, 3
+};
+
 static void init(void)
 {
 	// Setup sokol-gfx
@@ -38,20 +52,6 @@ static void init(void)
 	state.pass_action = {};
 	state.pass_action.colors[0].load_action = SG_LOADACTION_CLEAR;
 	state.pass_action.colors[0].clear_value = { 0.2f, 0.2f, 0.4f, 1.0f };
-
-	// Static vertex geometry buffer
-	std::vector<vertex_t> vertices = {
-		//  x, y, z, u, v
-		{ -0.5f, 0.5f, 1.0f, 0.0f, 0.0f},		// Top-Left
-		{ 0.5f, 0.5f, 1.0f, 1.0f, 0.0f },		// Top-Right
-		{ 0.5f, -0.5f, 1.0f, 1.0f, 1.0f },	// Bottom-Right
-		{ -0.5f, -0.5f, 1.0f, 0.0f, 1.0f }	// Bottom-Left
-	};
-
-	// create an index buffer for the quad
-	std::vector<uint32_t> indices = {
-		0, 1, 2,  0, 2, 3
-	};
 
 	state.particles.AddEmitter(&vertices, &indices);
 	state.particles.Start();

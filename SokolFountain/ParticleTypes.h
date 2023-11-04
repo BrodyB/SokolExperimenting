@@ -14,6 +14,5 @@ struct Particle
 // Struct for a sprite vertex
 typedef struct
 {
-	float x, y, z, scale;
-	float u, v;
+	float x, y, z;
 } vertex_t;
