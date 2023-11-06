@@ -14,10 +14,10 @@ public:
 
     ParticleSystem();
     
-    void Tick(float deltaTime, hmm_mat4 params) const;
+    void Tick(float deltaTime, hmm_mat4 params);
     void AddEmitter(std::vector<vertex_t>* vertices, std::vector<uint16_t>* indices);
-    void Start() const;
-    void Stop(bool immediately = false) const;
+    void Start();
+    void Stop(bool immediately = false);
 
 protected:
     std::vector<EmitterBad> emitters;
