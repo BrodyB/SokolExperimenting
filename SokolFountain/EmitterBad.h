@@ -16,18 +16,7 @@ public: // Constructor & Methods
     void SetOffsetRotation(float x, float y, float z);
     
 private:
-    // float* parentPos;
-    // float* parentRot;
-    // Relative position from parent System
-    float offsetPos[3] = { 0 };
-    // Relative rotation from parent System
-    float offsetRot[3] = { 0 };
-
-    float lifespanMin;
-    float lifespanMax;
-    int32_t indexCount;
-    
-    struct Particle
+    struct ParticleInstance
     {
         // a float is 4 bytes
         float lifetime; // 0..1 percentage through particle life
@@ -44,7 +33,25 @@ private:
         float r, g, b, a;
     };
 
-    sg_bindings bindings;
-    sg_pipeline pipeline;
+    // float* parentPos;
+    // float* parentRot;
+    // Relative position from parent System
+    float offsetPos[3] = { 0 };
+    // Relative rotation from parent System
+    float offsetRot[3] = { 0 };
+
+    float lifespanMin;
+    float lifespanMax;
+    const float emissionRate = 0.1f;
+    float emissionTimer = 0.0;
+    int32_t maxParticles;
+    int32_t indexCount;
+
+    sg_bindings bindings = { 0 };
+    sg_pipeline pipeline = { 0 };
     std::vector<ParticleData> particleData;
+    std::vector<ParticleInstance> particleInstances;
+
+    void EmitParticles(float deltaTime);
+    void UpdateInstances(float deltaTime);
 };
