@@ -1,4 +1,5 @@
 ﻿#include "ParticleSystem.h"
+#include <math.h>
 #include "HandmadeMath.h"
 
 #include "EmitterBad.h"
@@ -8,8 +9,12 @@ ParticleSystem::ParticleSystem()
 
 void ParticleSystem::Tick(float deltaTime, hmm_mat4 params)
 {
+    time += deltaTime;
+
     for (EmitterBad& emitter : emitters)
     {
+        sway = sinf(time) * 400.0f;
+        emitter.SetOffsetPosition(sway, 0.0f, 0.0f);
         emitter.Tick(deltaTime, params);
     }
 }

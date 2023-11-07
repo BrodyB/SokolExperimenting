@@ -117,10 +117,7 @@ void EmitterBad::EmitParticles(float deltaTime)
         if (particleData.size() < maxParticles)
         {
             ParticleData data;
-            data.x = random(-500.0f, 500.0f);
-            data.y = random(-500.0f, 500.0f);
-            data.z = 0.0f;
-            data.scale = 64.0f;
+            data.scale = random(24.0f, 32.0f);
 
             data.r = random(0.0f, 1.0f);
             data.g = random(0.0f, 1.0f);
@@ -129,9 +126,11 @@ void EmitterBad::EmitParticles(float deltaTime)
             particleData.insert(particleData.begin(), data);
 
             ParticleInstance inst;
+            inst.x = random(-100.0f, 100.0f);
+            inst.y = random(-100.0f, 100.0f);
+            inst.z = 0.0f;
             inst.maxDuration = random(lifespanMin, lifespanMax);
             inst.seconds = 0.0f;
-            inst.lifetime = 0.0f;
             particleInstances.insert(particleInstances.begin(), inst);
         }
     }
@@ -139,11 +138,18 @@ void EmitterBad::EmitParticles(float deltaTime)
 
 void EmitterBad::UpdateInstances(float deltaTime)
 {
-    int i = 0;
-    for (i = 0; i < particleData.size(); ++i)
+    for (int i = 0; i < particleData.size(); ++i)
     {
         particleInstances[i].seconds += deltaTime;
-        particleInstances[i].lifetime = std::max(particleInstances[i].seconds / particleInstances[i].maxDuration, 1.0f);
+
+        //
+        // Apply effect modules
+        //
+
+        // Push updated values to the data struct
+        particleData[i].x = offsetPos[0] + particleInstances[i].x;
+        particleData[i].y = offsetPos[1] + particleInstances[i].y;
+        particleData[i].z = offsetPos[2] + particleInstances[i].z;
     }
 
     // Update the instance buffer

@@ -21,4 +21,8 @@ public:
 
 protected:
     std::vector<EmitterBad> emitters;
+
+private:
+    float time = 0.0f;
+    float sway = 0.0f;
 };
