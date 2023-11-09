@@ -4,6 +4,7 @@
 
 #include "EmitterBad.h"
 #include "ScaleModule.h"
+#include "ColorModule.h"
 
 ParticleSystem::ParticleSystem()
 = default;
@@ -26,6 +27,11 @@ void ParticleSystem::AddEmitter(std::vector<vertex_t>* vertices, std::vector<uin
 
     ScaleModule* scale = new ScaleModule(0.1f, 32.0f, 48.0f);
     newEmitter.AddModule(*scale);
+
+    color_t start{ 0.0f, 1.0f, 0.0f, 1.0f };
+    color_t end{ 1.0f, 0.0f, 0.0f, 0.0f };
+    ColorModule* color = new ColorModule(start, end);
+    newEmitter.AddModule(*color);
 
     emitters.push_back(newEmitter);
 }

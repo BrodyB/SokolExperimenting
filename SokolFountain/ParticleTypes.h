@@ -5,12 +5,18 @@ typedef struct
 	float x, y, z, scale;
 } vertex_t;
 
+typedef struct
+{
+    float r, g, b, a;
+} color_t;
+
 
 // Struct for info
 struct ParticleInstance
 {
     // a float is 4 bytes
     float x, y, z;
+    color_t color;
     float scale;
     float seconds; // Seconds particle has been alive
     float maxDuration; // Seconds the particle will live total 
@@ -24,5 +30,5 @@ struct ParticleInstance
 struct ParticleData
 {
     float x, y, z, scale;
-    float r, g, b, a;
+    color_t color;
 };

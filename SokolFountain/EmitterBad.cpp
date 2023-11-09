@@ -120,12 +120,6 @@ void EmitterBad::EmitParticles(float deltaTime)
         if (particleData.size() < maxParticles)
         {
             ParticleData data;
-            data.scale = random(24.0f, 32.0f);
-
-            data.r = random(0.0f, 1.0f);
-            data.g = random(0.0f, 1.0f);
-            data.b = random(0.0f, 1.0f);
-            data.a = 1.0f;
             particleData.insert(particleData.begin(), data);
 
             ParticleInstance inst;
@@ -155,6 +149,8 @@ void EmitterBad::UpdateInstances(float deltaTime)
         particleData[i].y = offsetPos[1] + particleInstances[i].y;
         particleData[i].z = offsetPos[2] + particleInstances[i].z;
         particleData[i].scale = offsetPos[2] + particleInstances[i].scale;
+
+        particleData[i].color = particleInstances[i].color;
     }
 
     // Update the instance buffer

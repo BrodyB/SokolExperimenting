@@ -29,6 +29,9 @@
     <ClCompile Include="sokol.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ColorModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="textured.glsl.h">
@@ -76,5 +79,11 @@
     <ClInclude Include="..\sokol\sokol_time.h">
       <Filter>Source Files\sokol</Filter>
     </ClInclude>
+    <ClInclude Include="ColorModule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="textured.glsl" />
   </ItemGroup>
 </Project>
