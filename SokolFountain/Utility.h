@@ -19,3 +19,8 @@ inline const char* fileutil_get_path(const char* filename, char* buf, size_t buf
     snprintf(buf, buf_size, "%s", filename);
     return buf;
 }
+
+inline float lerp(float a, float b, float t)
+{
+    return a * (1.0f - t) + (b * t);
+}

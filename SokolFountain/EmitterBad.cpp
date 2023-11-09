@@ -2,7 +2,6 @@
 
 #include "sokol_gfx.h"
 #include "HandmadeMath.h"
-// #include "ParticleSystem.h"
 #include "ParticleTypes.h"
 #include "textured.glsl.h"
 #include "Utility.h"
@@ -19,17 +18,17 @@ EmitterBad::EmitterBad(const std::vector<vertex_t>* vertices, const std::vector<
     // Create the vertex buffer
     sg_buffer_desc vbuffer = { 0 };
     vbuffer.type = SG_BUFFERTYPE_VERTEXBUFFER;
-    vbuffer.data = sg_range{vertices->data(), vertices->size() * sizeof(vertex_t)};
+    vbuffer.data = sg_range{vertices->data(), (int32_t)vertices->size() * sizeof(vertex_t)};
     vbuffer.label = "emitter vertices";
     bindings.vertex_buffers[0] = sg_make_buffer(&vbuffer);
 
     // Create the index buffer
     sg_buffer_desc ibuffer = { 0 };
     ibuffer.type = SG_BUFFERTYPE_INDEXBUFFER;
-    ibuffer.data = sg_range{ indices->data(), indices->size() * sizeof(uint16_t)}; // problem?
+    ibuffer.data = sg_range{ indices->data(), (int32_t)indices->size() * sizeof(uint16_t)}; // problem?
     ibuffer.label = "emitter indices";
     bindings.index_buffer = sg_make_buffer(&ibuffer);
-    indexCount = indices->size();
+    indexCount = (int32_t)indices->size();
 
 
     // Dynamic buffer for instance data
@@ -81,7 +80,7 @@ void EmitterBad::Tick(float deltaTime, hmm_mat4 params)
     vs_params_t vs_params;
     vs_params.mvp = params;
     sg_apply_uniforms(SG_SHADERSTAGE_VS, SLOT_vs_params, SG_RANGE(vs_params));
-    sg_draw(0, indexCount, particleData.size()); // Base element, Number of elements, instances
+    sg_draw(0, indexCount, (int)particleData.size()); // Base element, Number of elements, instances
 }
 
 void EmitterBad::SetOffsetPosition(float x, float y, float z)
@@ -98,6 +97,11 @@ void EmitterBad::SetOffsetRotation(float x, float y, float z)
     offsetRot[2] = z;
 }
 
+void EmitterBad::AddModule(IModule& mod)
+{
+    modules.push_back(&mod);
+}
+
 void EmitterBad::EmitParticles(float deltaTime)
 {
     emissionTimer += deltaTime;
@@ -110,9 +114,8 @@ void EmitterBad::EmitParticles(float deltaTime)
     {
         emissionTimer -= emissionRate;
 
-        int size = particleData.size();
-        int cap = particleData.capacity();
-        int whatever = 3;
+        int size = (int)particleData.size();
+        int cap = (int)particleData.capacity();
 
         if (particleData.size() < maxParticles)
         {
@@ -142,14 +145,16 @@ void EmitterBad::UpdateInstances(float deltaTime)
     {
         particleInstances[i].seconds += deltaTime;
 
-        //
-        // Apply effect modules
-        //
+        for (IModule* module : modules)
+        {
+            module->Tick(deltaTime, &particleInstances[i]);
+        }
 
         // Push updated values to the data struct
         particleData[i].x = offsetPos[0] + particleInstances[i].x;
         particleData[i].y = offsetPos[1] + particleInstances[i].y;
         particleData[i].z = offsetPos[2] + particleInstances[i].z;
+        particleData[i].scale = offsetPos[2] + particleInstances[i].scale;
     }
 
     // Update the instance buffer

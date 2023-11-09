@@ -4,6 +4,7 @@
 #include "HandmadeMath.h"
 #include "ParticleTypes.h"
 #include "sokol_gfx.h"
+#include "Interfaces/IModule.h"
 
 class EmitterBad
 {
@@ -14,28 +15,9 @@ public: // Constructor & Methods
     void Tick(float deltaTime, hmm_mat4 params);
     void SetOffsetPosition(float x, float y, float z);
     void SetOffsetRotation(float x, float y, float z);
+    void AddModule(IModule& mod);
     
 private:
-    // Struct for info
-    struct ParticleInstance
-    {
-        // a float is 4 bytes
-        float x, y, z;
-        float seconds; // Seconds particle has been alive
-        float maxDuration; // Seconds the particle will live total 
-        float lifetime() const { return seconds / maxDuration; } // 0..1 percentage through particle life
-        float velX, velY;
-        // this struct is 20 bytes: inside the 32 byte cache line
-        // but won't be in alignment
-    };
-
-    // Struct for data sent to the instance vertex buffer
-    struct ParticleData
-    {
-        float x, y, z, scale;
-        float r, g, b, a;
-    };
-
     // float* parentPos;
     // float* parentRot;
     // Relative position from parent System
@@ -54,6 +36,7 @@ private:
     sg_pipeline pipeline = { 0 };
     std::vector<ParticleData> particleData;
     std::vector<ParticleInstance> particleInstances;
+    std::vector<IModule*> modules;
 
     void EmitParticles(float deltaTime);
     void UpdateInstances(float deltaTime);
