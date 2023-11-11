@@ -6,12 +6,18 @@
 #include "textured.glsl.h"
 #include "../libs/stb/stb_image.h"
 #include "Utility.h"
+#include <util/sokol_debugtext.h>
 
 EmitterBad::EmitterBad(const char* imgPath, const std::vector<vertex_t>* vertices, const std::vector<uint16_t>* indices, float durationMin, float durationMax, int32_t maxParticles)
 {
     lifespanMin = durationMin;
     lifespanMax = durationMax;
     this->maxParticles = maxParticles;
+
+    sdtx_desc_t textDesc;
+    textDesc.fonts[0] = sdtx_font_oric();
+    textDesc.logger.func = slog_func;
+    sdtx_setup(&textDesc);
 
     bindings.fs.images[SLOT_tex] = sg_alloc_image();
 
@@ -113,6 +119,15 @@ void EmitterBad::Tick(float deltaTime, hmm_mat4 params)
     vs_params.mvp = params;
     sg_apply_uniforms(SG_SHADERSTAGE_VS, SLOT_vs_params, SG_RANGE(vs_params));
     sg_draw(0, indexCount, (int)particleData.size()); // Base element, Number of elements, instances
+
+
+    // help text
+    char buffer[50];
+    sprintf_s(buffer, "Draw Time: %.2fms", ceil((deltaTime * 1000) * 100) / 100);
+    sdtx_canvas(1280.0f * 0.5f, 720.0f * 0.5f);
+    sdtx_pos(0.5f, 0.5f);
+    sdtx_puts(buffer);
+    sdtx_draw();
 }
 
 void EmitterBad::SetOffsetPosition(float x, float y, float z)

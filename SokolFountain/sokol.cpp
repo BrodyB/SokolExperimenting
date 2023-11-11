@@ -5,6 +5,8 @@
 #include "sokol_fetch.h"
 #include "sokol_log.h"
 #include "sokol_glue.h"
+#define SOKOL_DEBUGTEXT_IMPL
+#include "util/sokol_debugtext.h"
 
 #define HANDMADE_MATH_IMPLEMENTATION
 #define HANDMADE_MATH_CPP_MODE
