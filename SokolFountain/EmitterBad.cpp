@@ -46,6 +46,10 @@ EmitterBad::EmitterBad(const std::vector<vertex_t>* vertices, const std::vector<
     pip.label = "emitter pipeline";
 
     pip.shader = sg_make_shader(instancing_shader_desc(sg_query_backend()));
+    pip.colors[0].blend.enabled = true;
+    pip.colors[0].blend.src_factor_rgb = SG_BLENDFACTOR_SRC_ALPHA;
+    pip.colors[0].blend.dst_factor_rgb = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+
     // Vertex buffer
     pip.layout.attrs[ATTR_vs_pos].format = SG_VERTEXFORMAT_FLOAT4;
     pip.layout.attrs[ATTR_vs_pos].buffer_index = 0;

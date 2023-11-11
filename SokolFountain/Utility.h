@@ -20,7 +20,15 @@ inline const char* fileutil_get_path(const char* filename, char* buf, size_t buf
     return buf;
 }
 
+inline float clamp(float value, float min, float max)
+{
+    if (value < min) return min;
+    if (value > max) return max;
+    return value;
+}
+
 inline float lerp(float a, float b, float t)
 {
+    t = clamp(t, 0.0f, 1.0f);
     return a * (1.0f - t) + (b * t);
 }
