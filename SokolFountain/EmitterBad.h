@@ -18,6 +18,7 @@ public: // Constructor & Methods
     void AddModule(IModule& mod);
     
 private:
+    bool isActive;
     // Relative position from parent System
     float offsetPos[3] = { 0 };
     // Relative rotation from parent System
@@ -25,7 +26,7 @@ private:
 
     float lifespanMin;
     float lifespanMax;
-    const float emissionRate = 0.1f;
+    const float emissionRate = 0.01f;
     float emissionTimer = 0.0;
     int32_t maxParticles;
     int32_t indexCount;

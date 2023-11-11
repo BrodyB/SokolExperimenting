@@ -93,12 +93,12 @@ EmitterBad::EmitterBad(const char* imgPath, const std::vector<vertex_t>* vertice
 
 void EmitterBad::Start()
 {
-    
+    isActive = true;
 }
 
 void EmitterBad::Stop(bool immediately)
 {
-    
+    isActive = false;
 }
 
 void EmitterBad::Tick(float deltaTime, hmm_mat4 params)
@@ -136,6 +136,7 @@ void EmitterBad::AddModule(IModule& mod)
 
 void EmitterBad::EmitParticles(float deltaTime)
 {
+    if (!isActive) return;
     emissionTimer += deltaTime;
 
     /*char buffer[50];

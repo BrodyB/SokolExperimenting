@@ -54,8 +54,7 @@ static void init(void)
 	state.pass_action.colors[0].clear_value = { 0.2f, 0.2f, 0.4f, 1.0f };
 
 	state.particles.AddEmitter(&vertices, &indices);
-
-	LOG("Butts");
+	state.particles.Start();
 }
 
 /*
