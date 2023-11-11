@@ -9,7 +9,7 @@
 class EmitterBad
 {
 public: // Constructor & Methods
-    EmitterBad(const std::vector<vertex_t>* vertices, const std::vector<uint16_t>* indices, float durationMin, float durationMax, int32_t maxParticles);
+    EmitterBad(const char* imgPath, const std::vector<vertex_t>* vertices, const std::vector<uint16_t>* indices, float durationMin, float durationMax, int32_t maxParticles);
     void Start();
     void Stop(bool immediately = false);
     void Tick(float deltaTime, hmm_mat4 params);

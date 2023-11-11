@@ -10,3 +10,6 @@
 #define HANDMADE_MATH_CPP_MODE
 #define HANDMADE_MATH_NO_SSE
 #include "HandmadeMath.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "../libs/stb/stb_image.h"

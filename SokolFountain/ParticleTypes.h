@@ -3,6 +3,7 @@
 typedef struct
 {
 	float x, y, z, scale;
+    float u, v;
 } vertex_t;
 
 typedef struct

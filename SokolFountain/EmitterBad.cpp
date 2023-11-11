@@ -4,9 +4,10 @@
 #include "HandmadeMath.h"
 #include "ParticleTypes.h"
 #include "textured.glsl.h"
+#include "../libs/stb/stb_image.h"
 #include "Utility.h"
 
-EmitterBad::EmitterBad(const std::vector<vertex_t>* vertices, const std::vector<uint16_t>* indices, float durationMin, float durationMax, int32_t maxParticles)
+EmitterBad::EmitterBad(const char* imgPath, const std::vector<vertex_t>* vertices, const std::vector<uint16_t>* indices, float durationMin, float durationMax, int32_t maxParticles)
 {
     // parentPos = system->position;
     // parentRot = system->rotation;
@@ -14,6 +15,34 @@ EmitterBad::EmitterBad(const std::vector<vertex_t>* vertices, const std::vector<
     lifespanMin = durationMin;
     lifespanMax = durationMax;
     this->maxParticles = maxParticles;
+
+    bindings.fs.images[SLOT_tex] = sg_alloc_image();
+
+    sg_sampler_desc sampler{};
+    sampler.min_filter = SG_FILTER_LINEAR;
+    sampler.mag_filter = SG_FILTER_LINEAR;
+    bindings.fs.samplers[SLOT_smp] = sg_make_sampler(&sampler);
+
+    int width, height, channels;
+    stbi_uc* img = stbi_load(imgPath, &width, &height, &channels, 4);
+
+    if (img)
+    {
+        sg_image_desc desc{};
+        desc.width = width;
+        desc.height = height;
+        desc.pixel_format = SG_PIXELFORMAT_RGBA8;
+        desc.data.subimage[0][0].ptr = img;
+        desc.data.subimage[0][0].size = (size_t)(width * height * 4);
+
+        sg_init_image(bindings.fs.images[SLOT_tex], &desc);
+        stbi_image_free(img);
+    }
+    else
+    {
+        LOG("UNABLE TO LOAD IMAGE!");
+    }
+    
 
     // Create the vertex buffer
     sg_buffer_desc vbuffer = { 0 };
@@ -53,6 +82,8 @@ EmitterBad::EmitterBad(const std::vector<vertex_t>* vertices, const std::vector<
     // Vertex buffer
     pip.layout.attrs[ATTR_vs_pos].format = SG_VERTEXFORMAT_FLOAT4;
     pip.layout.attrs[ATTR_vs_pos].buffer_index = 0;
+    pip.layout.attrs[ATTR_vs_texcoord0].format = SG_VERTEXFORMAT_FLOAT2;
+    pip.layout.attrs[ATTR_vs_texcoord0].buffer_index = 0;
 	
     // Instance data buffer
     pip.layout.attrs[ATTR_vs_inst_pos].format = SG_VERTEXFORMAT_FLOAT4;
