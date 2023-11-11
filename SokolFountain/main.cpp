@@ -102,7 +102,7 @@ sapp_desc sokol_main(int argc, char* argv[])
 	desc.cleanup_cb = cleanup;
 	desc.width = 1280;
 	desc.height = 720;
-	desc.window_title = "Instance Flood";
+	desc.window_title = "Particle Emitters";
 	desc.icon.sokol_default = true;
 	desc.logger.func = slog_func;
 

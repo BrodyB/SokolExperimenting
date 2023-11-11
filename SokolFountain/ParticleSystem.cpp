@@ -23,9 +23,9 @@ void ParticleSystem::Tick(float deltaTime, hmm_mat4 params)
 
 void ParticleSystem::AddEmitter(std::vector<vertex_t>* vertices, std::vector<uint16_t>* indices)
 {
-    EmitterBad newEmitter("data/king.png", vertices, indices, 2.0f, 4.0f, 512);
+    EmitterBad newEmitter("data/smoke.png", vertices, indices, 2.0f, 4.0f, 512);
 
-    ScaleModule* scale = new ScaleModule(0.1f, 32.0f, 48.0f);
+    ScaleModule* scale = new ScaleModule(0.1f, 64.0f, 128.0f);
     newEmitter.AddModule(*scale);
 
     color_t start{ 0.0f, 1.0f, 0.0f, 1.0f };
