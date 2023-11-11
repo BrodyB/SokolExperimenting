@@ -9,9 +9,6 @@
 
 EmitterBad::EmitterBad(const char* imgPath, const std::vector<vertex_t>* vertices, const std::vector<uint16_t>* indices, float durationMin, float durationMax, int32_t maxParticles)
 {
-    // parentPos = system->position;
-    // parentRot = system->rotation;
-
     lifespanMin = durationMin;
     lifespanMax = durationMax;
     this->maxParticles = maxParticles;
@@ -158,8 +155,8 @@ void EmitterBad::EmitParticles(float deltaTime)
             particleData.insert(particleData.begin(), data);
 
             ParticleInstance inst;
-            inst.x = random(-100.0f, 100.0f);
-            inst.y = random(-100.0f, 100.0f);
+            inst.x = offsetPos[0] + random(-100.0f, 100.0f);
+            inst.y = offsetPos[1] + random(-100.0f, 100.0f);
             inst.z = 0.0f;
             inst.maxDuration = random(lifespanMin, lifespanMax);
             inst.seconds = 0.0f;
@@ -180,10 +177,10 @@ void EmitterBad::UpdateInstances(float deltaTime)
         }
 
         // Push updated values to the data struct
-        particleData[i].x = offsetPos[0] + particleInstances[i].x;
-        particleData[i].y = offsetPos[1] + particleInstances[i].y;
-        particleData[i].z = offsetPos[2] + particleInstances[i].z;
-        particleData[i].scale = offsetPos[2] + particleInstances[i].scale;
+        particleData[i].x = particleInstances[i].x;
+        particleData[i].y = particleInstances[i].y;
+        particleData[i].z = particleInstances[i].z;
+        particleData[i].scale = particleInstances[i].scale;
 
         particleData[i].color = particleInstances[i].color;
     }

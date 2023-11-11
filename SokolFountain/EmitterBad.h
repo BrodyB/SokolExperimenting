@@ -18,8 +18,6 @@ public: // Constructor & Methods
     void AddModule(IModule& mod);
     
 private:
-    // float* parentPos;
-    // float* parentRot;
     // Relative position from parent System
     float offsetPos[3] = { 0 };
     // Relative rotation from parent System
