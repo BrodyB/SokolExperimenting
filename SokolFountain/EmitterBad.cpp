@@ -176,6 +176,9 @@ void EmitterBad::UpdateInstances(float deltaTime)
             module->Tick(deltaTime, &particleInstances[i]);
         }
 
+        particleInstances[i].x += particleInstances[i].velX * deltaTime;
+        particleInstances[i].y += particleInstances[i].velY * deltaTime;
+
         // Push updated values to the data struct
         particleData[i].x = particleInstances[i].x;
         particleData[i].y = particleInstances[i].y;

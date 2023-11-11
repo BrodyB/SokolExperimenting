@@ -3,11 +3,11 @@
 #include "HandmadeMath.h"
 
 #include "EmitterBad.h"
+#include "PositionModule.h"
 #include "ScaleModule.h"
 #include "ColorModule.h"
 
-ParticleSystem::ParticleSystem()
-= default;
+ParticleSystem::ParticleSystem() = default;
 
 void ParticleSystem::Tick(float deltaTime, hmm_mat4 params)
 {
@@ -25,7 +25,10 @@ void ParticleSystem::AddEmitter(std::vector<vertex_t>* vertices, std::vector<uin
 {
     EmitterBad newEmitter("data/smoke.png", vertices, indices, 2.0f, 4.0f, 512);
 
-    ScaleModule* scale = new ScaleModule(0.1f, 64.0f, 128.0f);
+    PositionModule* pos = new PositionModule(0.1f, 1.0f);
+    newEmitter.AddModule(*pos);
+
+    ScaleModule* scale = new ScaleModule(64.0f, 256.0f, 360.0f);
     newEmitter.AddModule(*scale);
 
     color_t start{ 0.0f, 1.0f, 0.0f, 1.0f };

@@ -150,6 +150,7 @@
     <ClCompile Include="EmitterBad.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
+    <ClCompile Include="PositionModule.cpp" />
     <ClCompile Include="ScaleModule.cpp" />
     <ClCompile Include="sokol.cpp" />
   </ItemGroup>
@@ -167,6 +168,7 @@
     <ClInclude Include="Interfaces\IModule.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="ParticleTypes.h" />
+    <ClInclude Include="PositionModule.h" />
     <ClInclude Include="ScaleModule.h" />
     <ClInclude Include="textured.glsl.h" />
     <ClInclude Include="Utility.h" />
