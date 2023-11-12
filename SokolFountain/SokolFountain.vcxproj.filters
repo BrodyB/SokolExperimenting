@@ -32,6 +32,15 @@
     <ClCompile Include="ColorModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EmitterOkay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PositionModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EmitterGood.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="textured.glsl.h">
@@ -80,6 +89,15 @@
       <Filter>Source Files\sokol</Filter>
     </ClInclude>
     <ClInclude Include="ColorModule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EmitterOkay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PositionModule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EmitterGood.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="ColorModule.cpp" />
     <ClCompile Include="EmitterBad.cpp" />
+    <ClCompile Include="EmitterGood.cpp" />
     <ClCompile Include="EmitterOkay.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="..\sokol\sokol_time.h" />
     <ClInclude Include="ColorModule.h" />
     <ClInclude Include="EmitterBad.h" />
+    <ClInclude Include="EmitterGood.h" />
     <ClInclude Include="EmitterOkay.h" />
     <ClInclude Include="Interfaces\IModule.h" />
     <ClInclude Include="ParticleSystem.h" />
