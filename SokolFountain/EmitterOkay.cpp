@@ -1,4 +1,4 @@
-﻿#include "EmitterBad.h"
+#include "EmitterOkay.h"
 
 #include "sokol_gfx.h"
 #include "HandmadeMath.h"
@@ -8,7 +8,7 @@
 #include "Utility.h"
 #include <util/sokol_debugtext.h>
 
-EmitterBad::EmitterBad(const char* imgPath, const std::vector<vertex_t>* vertices, const std::vector<uint16_t>* indices, float durationMin, float durationMax, int32_t maxParticles)
+EmitterOkay::EmitterOkay(const char* imgPath, const std::vector<vertex_t>* vertices, const std::vector<uint16_t>* indices, float durationMin, float durationMax, int32_t maxParticles)
 {
     lifespanMin = durationMin;
     lifespanMax = durationMax;
@@ -45,19 +45,19 @@ EmitterBad::EmitterBad(const char* imgPath, const std::vector<vertex_t>* vertice
     {
         LOG("UNABLE TO LOAD IMAGE!");
     }
-    
+
 
     // Create the vertex buffer
     sg_buffer_desc vbuffer = { 0 };
     vbuffer.type = SG_BUFFERTYPE_VERTEXBUFFER;
-    vbuffer.data = sg_range{vertices->data(), (int32_t)vertices->size() * sizeof(vertex_t)};
+    vbuffer.data = sg_range{ vertices->data(), (int32_t)vertices->size() * sizeof(vertex_t) };
     vbuffer.label = "emitter vertices";
     bindings.vertex_buffers[0] = sg_make_buffer(&vbuffer);
 
     // Create the index buffer
     sg_buffer_desc ibuffer = { 0 };
     ibuffer.type = SG_BUFFERTYPE_INDEXBUFFER;
-    ibuffer.data = sg_range{ indices->data(), (int32_t)indices->size() * sizeof(uint16_t)}; // problem?
+    ibuffer.data = sg_range{ indices->data(), (int32_t)indices->size() * sizeof(uint16_t) }; // problem?
     ibuffer.label = "emitter indices";
     bindings.index_buffer = sg_make_buffer(&ibuffer);
     indexCount = (int32_t)indices->size();
@@ -87,7 +87,7 @@ EmitterBad::EmitterBad(const char* imgPath, const std::vector<vertex_t>* vertice
     pip.layout.attrs[ATTR_vs_pos].buffer_index = 0;
     pip.layout.attrs[ATTR_vs_texcoord0].format = SG_VERTEXFORMAT_FLOAT2;
     pip.layout.attrs[ATTR_vs_texcoord0].buffer_index = 0;
-	
+
     // Instance data buffer
     pip.layout.attrs[ATTR_vs_inst_pos].format = SG_VERTEXFORMAT_FLOAT4;
     pip.layout.attrs[ATTR_vs_inst_pos].buffer_index = 1;
@@ -97,17 +97,17 @@ EmitterBad::EmitterBad(const char* imgPath, const std::vector<vertex_t>* vertice
     pipeline = sg_make_pipeline(&pip);
 }
 
-void EmitterBad::Start()
+void EmitterOkay::Start()
 {
     isActive = true;
 }
 
-void EmitterBad::Stop(bool immediately)
+void EmitterOkay::Stop(bool immediately)
 {
     isActive = false;
 }
 
-void EmitterBad::Tick(float deltaTime, hmm_mat4 params)
+void EmitterOkay::Tick(float deltaTime, hmm_mat4 params)
 {
     EmitParticles(deltaTime);
     UpdateInstances(deltaTime);
@@ -123,33 +123,33 @@ void EmitterBad::Tick(float deltaTime, hmm_mat4 params)
 
     // help text
     char buffer[50];
-    sprintf_s(buffer, "Bad Emitter\n\nDraw Time: %.2fms", ceil((deltaTime * 1000) * 100) / 100);
-    sdtx_canvas(720.0f, 360.0f);
+    sprintf_s(buffer, "Okay Emitter\n\nDraw Time: %.2fms", ceil((deltaTime * 1000) * 100) / 100);
+    sdtx_canvas(640.0f, 360.0f);
     sdtx_pos(0.5f, 0.5f);
     sdtx_puts(buffer);
     sdtx_draw();
 }
 
-void EmitterBad::SetOffsetPosition(float x, float y, float z)
+void EmitterOkay::SetOffsetPosition(float x, float y, float z)
 {
     offsetPos[0] = x;
     offsetPos[1] = y;
     offsetPos[2] = z;
 }
 
-void EmitterBad::SetOffsetRotation(float x, float y, float z)
+void EmitterOkay::SetOffsetRotation(float x, float y, float z)
 {
     offsetRot[0] = x;
     offsetRot[1] = y;
     offsetRot[2] = z;
 }
 
-void EmitterBad::AddModule(IModule& mod)
+void EmitterOkay::AddModule(IModule& mod)
 {
     modules.push_back(&mod);
 }
 
-void EmitterBad::EmitParticles(float deltaTime)
+void EmitterOkay::EmitParticles(float deltaTime)
 {
     if (!isActive) return;
     emissionTimer += deltaTime;
@@ -181,7 +181,7 @@ void EmitterBad::EmitParticles(float deltaTime)
     }
 }
 
-void EmitterBad::UpdateInstances(float deltaTime)
+void EmitterOkay::UpdateInstances(float deltaTime)
 {
     for (int i = 0; i < particleData.size(); ++i)
     {
