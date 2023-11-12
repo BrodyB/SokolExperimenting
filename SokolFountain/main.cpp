@@ -16,6 +16,7 @@
 #include "textured.glsl.h"
 #include "ParticleSystem.h"
 #include "Utility.h"
+#include <sokol_time.h>
 
 #define MAX_PARTICLES (4096)
 
@@ -95,6 +96,8 @@ static void cleanup(void)
 // This is the actual main function that's called at start
 sapp_desc sokol_main(int argc, char* argv[])
 {
+	stm_setup();
+
 	sapp_desc desc{};
 	desc.init_cb = init;
 	desc.frame_cb = frame;

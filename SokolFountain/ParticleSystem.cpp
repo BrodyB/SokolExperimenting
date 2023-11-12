@@ -16,14 +16,14 @@ void ParticleSystem::Tick(float deltaTime, hmm_mat4 params)
     for (EmitterBad& emitter : emitters)
     {
         sway = sinf(time) * 400.0f;
-        emitter.SetOffsetPosition(sway, 0.0f, 0.0f);
+        emitter.SetOffsetPosition(sway, -200.0f, 0.0f);
         emitter.Tick(deltaTime, params);
     }
 }
 
 void ParticleSystem::AddEmitter(std::vector<vertex_t>* vertices, std::vector<uint16_t>* indices)
 {
-    EmitterBad newEmitter("data/smoke.png", vertices, indices, 3.0f, 4.0f, 512);
+    EmitterBad newEmitter("data/smoke.png", vertices, indices, 6.0f, 8.0f, 100000);
 
     PositionModule* pos = new PositionModule(0.1f, 1.0f);
     newEmitter.AddModule(*pos);

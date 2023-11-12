@@ -26,15 +26,16 @@ private:
 
     float lifespanMin;
     float lifespanMax;
-    const float emissionRate = 0.01f;
+    const float emissionRate = 0.0001f;
     float emissionTimer = 0.0;
     int32_t maxParticles;
     int32_t indexCount;
+    float tickTime;
 
     sg_bindings bindings = { 0 };
     sg_pipeline pipeline = { 0 };
-    std::vector<ParticleData> particleData;
-    std::vector<ParticleInstance> particleInstances;
+    std::vector<ParticleData*> particleData;
+    std::vector<ParticleInstance*> particleInstances;
     std::vector<IModule*> modules;
 
     void EmitParticles(float deltaTime);

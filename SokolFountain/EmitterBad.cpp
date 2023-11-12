@@ -7,6 +7,7 @@
 #include "../libs/stb/stb_image.h"
 #include "Utility.h"
 #include <util/sokol_debugtext.h>
+#include <sokol_time.h>
 
 EmitterBad::EmitterBad(const char* imgPath, const std::vector<vertex_t>* vertices, const std::vector<uint16_t>* indices, float durationMin, float durationMax, int32_t maxParticles)
 {
@@ -109,8 +110,12 @@ void EmitterBad::Stop(bool immediately)
 
 void EmitterBad::Tick(float deltaTime, hmm_mat4 params)
 {
+    auto oldTime = stm_now();
+
     EmitParticles(deltaTime);
     UpdateInstances(deltaTime);
+
+    auto timeSince = stm_ms(stm_since(oldTime));
 
     // Draw emitter particles
     sg_apply_pipeline(pipeline);
@@ -123,7 +128,7 @@ void EmitterBad::Tick(float deltaTime, hmm_mat4 params)
 
     // help text
     char buffer[50];
-    sprintf_s(buffer, "Bad Emitter\n\nDraw Time: %.2fms", ceil((deltaTime * 1000) * 100) / 100);
+    sprintf_s(buffer, "Bad Emitter\n\nDraw Time: %.2fms", timeSince);
     sdtx_canvas(720.0f, 360.0f);
     sdtx_pos(0.5f, 0.5f);
     sdtx_puts(buffer);
@@ -135,13 +140,6 @@ void EmitterBad::SetOffsetPosition(float x, float y, float z)
     offsetPos[0] = x;
     offsetPos[1] = y;
     offsetPos[2] = z;
-}
-
-void EmitterBad::SetOffsetRotation(float x, float y, float z)
-{
-    offsetRot[0] = x;
-    offsetRot[1] = y;
-    offsetRot[2] = z;
 }
 
 void EmitterBad::AddModule(IModule& mod)
@@ -167,15 +165,15 @@ void EmitterBad::EmitParticles(float deltaTime)
 
         if (particleData.size() < maxParticles)
         {
-            ParticleData data;
+            ParticleData* data = new ParticleData();
             particleData.insert(particleData.begin(), data);
 
-            ParticleInstance inst;
-            inst.x = offsetPos[0] + random(-100.0f, 100.0f);
-            inst.y = offsetPos[1] + random(-100.0f, 100.0f);
-            inst.z = 0.0f;
-            inst.maxDuration = random(lifespanMin, lifespanMax);
-            inst.seconds = 0.0f;
+            ParticleInstance* inst = new ParticleInstance();
+            inst->x = offsetPos[0] + random(-250.0f, 250.0f);
+            inst->y = offsetPos[1] + random(-100.0f, 100.0f);
+            inst->z = offsetPos[2];
+            inst->maxDuration = random(lifespanMin, lifespanMax);
+            inst->seconds = 0.0f;
             particleInstances.insert(particleInstances.begin(), inst);
         }
     }
@@ -185,39 +183,45 @@ void EmitterBad::UpdateInstances(float deltaTime)
 {
     for (int i = 0; i < particleData.size(); ++i)
     {
-        particleInstances[i].seconds += deltaTime;
+        particleInstances[i]->seconds += deltaTime;
 
         for (IModule* module : modules)
         {
-            module->Tick(deltaTime, &particleInstances[i]);
+            module->Tick(deltaTime, particleInstances[i]);
         }
 
-        particleInstances[i].x += particleInstances[i].velX * deltaTime;
-        particleInstances[i].y += particleInstances[i].velY * deltaTime;
+        particleInstances[i]->x += particleInstances[i]->velX * deltaTime;
+        particleInstances[i]->y += particleInstances[i]->velY * deltaTime;
 
         // Push updated values to the data struct
-        particleData[i].x = particleInstances[i].x;
-        particleData[i].y = particleInstances[i].y;
-        particleData[i].z = particleInstances[i].z;
-        particleData[i].scale = particleInstances[i].scale;
+        particleData[i]->x = particleInstances[i]->x;
+        particleData[i]->y = particleInstances[i]->y;
+        particleData[i]->z = particleInstances[i]->z;
+        particleData[i]->scale = particleInstances[i]->scale;
 
-        particleData[i].color = particleInstances[i].color;
+        particleData[i]->color = particleInstances[i]->color;
     }
 
     // Update the instance buffer
     if (particleData.size() > 0)
     {
         // Remove expired instances at the back of the list
-        ParticleInstance oldInst = particleInstances.back();
+        ParticleInstance oldInst = *particleInstances.back();
         if (oldInst.seconds > oldInst.maxDuration)
         {
             particleInstances.pop_back();
             particleData.pop_back();
         }
 
+        std::vector<ParticleData> rawData;
+        for (ParticleData* pnt : particleData)
+        {
+            rawData.push_back(*pnt);
+        }
+
         sg_range data = {};
-        data.ptr = &particleData[0];
-        data.size = particleData.size() * sizeof(ParticleData);
+        data.ptr = &rawData[0];
+        data.size = rawData.size() * sizeof(ParticleData);
         sg_update_buffer(bindings.vertex_buffers[1], &data);
     }
 }
