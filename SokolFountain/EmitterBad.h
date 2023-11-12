@@ -26,11 +26,11 @@ private:
 
     float lifespanMin;
     float lifespanMax;
-    const float emissionRate = 0.0001f;
-    float emissionTimer = 0.0;
+    const int emissionRate = 40;
     int32_t maxParticles;
     int32_t indexCount;
-    float tickTime;
+    double updateTimes[4];
+    int updateIndex = 0;
 
     sg_bindings bindings = { 0 };
     sg_pipeline pipeline = { 0 };

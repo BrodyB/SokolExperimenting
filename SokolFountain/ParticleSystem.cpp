@@ -15,7 +15,7 @@ void ParticleSystem::Tick(float deltaTime, hmm_mat4 params)
 
     for (EmitterBad& emitter : emitters)
     {
-        sway = sinf(time) * 400.0f;
+        sway = sinf(time) * 100.0f;
         emitter.SetOffsetPosition(sway, -200.0f, 0.0f);
         emitter.Tick(deltaTime, params);
     }

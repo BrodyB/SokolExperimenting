@@ -110,12 +110,14 @@ void EmitterBad::Stop(bool immediately)
 
 void EmitterBad::Tick(float deltaTime, hmm_mat4 params)
 {
-    auto oldTime = stm_now();
+    double oldTime = stm_now();
 
     EmitParticles(deltaTime);
     UpdateInstances(deltaTime);
 
-    auto timeSince = stm_ms(stm_since(oldTime));
+    updateTimes[updateIndex] = stm_ms(stm_since(oldTime));
+    updateIndex += 1;
+    if (updateIndex > 3) updateIndex = 0;
 
     // Draw emitter particles
     sg_apply_pipeline(pipeline);
@@ -125,10 +127,15 @@ void EmitterBad::Tick(float deltaTime, hmm_mat4 params)
     sg_apply_uniforms(SG_SHADERSTAGE_VS, SLOT_vs_params, SG_RANGE(vs_params));
     sg_draw(0, indexCount, (int)particleData.size()); // Base element, Number of elements, instances
 
+    double timeSince = 0;
+    for (int i = 0; i < 4; ++i)
+    {
+        timeSince += updateTimes[i];
+    }
 
     // help text
     char buffer[50];
-    sprintf_s(buffer, "Bad Emitter\n\nDraw Time: %.2fms", timeSince);
+    sprintf_s(buffer, "Bad Emitter\n\nDraw Time: %.2fms", timeSince / 4);
     sdtx_canvas(720.0f, 360.0f);
     sdtx_pos(0.5f, 0.5f);
     sdtx_puts(buffer);
@@ -150,16 +157,13 @@ void EmitterBad::AddModule(IModule& mod)
 void EmitterBad::EmitParticles(float deltaTime)
 {
     if (!isActive) return;
-    emissionTimer += deltaTime;
 
     /*char buffer[50];
     sprintf_s(buffer, "Timer: %f // Delta: %f", emissionTimer, deltaTime);
     LOG(buffer);*/
 
-    if (emissionTimer >= emissionRate)
+    for (int i = 0; i < emissionRate; ++i)
     {
-        emissionTimer -= emissionRate;
-
         int size = (int)particleData.size();
         int cap = (int)particleData.capacity();
 
@@ -169,7 +173,7 @@ void EmitterBad::EmitParticles(float deltaTime)
             particleData.insert(particleData.begin(), data);
 
             ParticleInstance* inst = new ParticleInstance();
-            inst->x = offsetPos[0] + random(-250.0f, 250.0f);
+            inst->x = offsetPos[0] + random(-500.0f, 500.0f);
             inst->y = offsetPos[1] + random(-100.0f, 100.0f);
             inst->z = offsetPos[2];
             inst->maxDuration = random(lifespanMin, lifespanMax);
