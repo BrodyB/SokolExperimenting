@@ -29,8 +29,9 @@ private:
     const int emissionRate = 40;
     int32_t maxParticles;
     int32_t indexCount;
-    double updateTimes[4];
+    double updateTimes[32];
     int updateIndex = 0;
+    double updateMax = 0;
 
     sg_bindings bindings = { 0 };
     sg_pipeline pipeline = { 0 };

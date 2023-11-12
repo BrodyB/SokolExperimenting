@@ -13,7 +13,6 @@ public: // Constructor & Methods
     void Stop(bool immediately = false);
     void Tick(float deltaTime, hmm_mat4 params);
     void SetOffsetPosition(float x, float y, float z);
-    void SetOffsetRotation(float x, float y, float z);
     void AddModule(IModule& mod);
 
 private:
@@ -25,10 +24,12 @@ private:
 
     float lifespanMin;
     float lifespanMax;
-    const float emissionRate = 0.01f;
-    float emissionTimer = 0.0;
+    const int emissionRate = 40;
     int32_t maxParticles;
     int32_t indexCount;
+    double updateTimes[32] = { 0 };
+    int updateIndex = 0;
+    double updateMax;
 
     sg_bindings bindings = { 0 };
     sg_pipeline pipeline = { 0 };

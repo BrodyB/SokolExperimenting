@@ -15,7 +15,7 @@ EmitterBad::EmitterBad(const char* imgPath, const std::vector<vertex_t>* vertice
     lifespanMax = durationMax;
     this->maxParticles = maxParticles;
 
-    sdtx_desc_t textDesc;
+    sdtx_desc_t textDesc{};
     textDesc.fonts[0] = sdtx_font_oric();
     textDesc.logger.func = slog_func;
     sdtx_setup(&textDesc);
@@ -116,8 +116,9 @@ void EmitterBad::Tick(float deltaTime, hmm_mat4 params)
     UpdateInstances(deltaTime);
 
     updateTimes[updateIndex] = stm_ms(stm_since(oldTime));
+    updateMax = std::max(updateMax, updateTimes[updateIndex]);
     updateIndex += 1;
-    if (updateIndex > 3) updateIndex = 0;
+    if (updateIndex > 31) updateIndex = 0;
 
     // Draw emitter particles
     sg_apply_pipeline(pipeline);
@@ -128,14 +129,14 @@ void EmitterBad::Tick(float deltaTime, hmm_mat4 params)
     sg_draw(0, indexCount, (int)particleData.size()); // Base element, Number of elements, instances
 
     double timeSince = 0;
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < 32; ++i)
     {
         timeSince += updateTimes[i];
     }
 
     // help text
     char buffer[50];
-    sprintf_s(buffer, "Bad Emitter\n\nDraw Time: %.2fms", timeSince / 4);
+    sprintf_s(buffer, "Bad Emitter\n\n Average: %.2fms\n Highest: %.2fms", timeSince / 32, updateMax);
     sdtx_canvas(720.0f, 360.0f);
     sdtx_pos(0.5f, 0.5f);
     sdtx_puts(buffer);

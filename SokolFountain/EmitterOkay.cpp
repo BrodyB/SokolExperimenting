@@ -7,6 +7,7 @@
 #include "../libs/stb/stb_image.h"
 #include "Utility.h"
 #include <util/sokol_debugtext.h>
+#include <sokol_time.h>
 
 EmitterOkay::EmitterOkay(const char* imgPath, const std::vector<vertex_t>* vertices, const std::vector<uint16_t>* indices, float durationMin, float durationMax, int32_t maxParticles)
 {
@@ -14,7 +15,7 @@ EmitterOkay::EmitterOkay(const char* imgPath, const std::vector<vertex_t>* verti
     lifespanMax = durationMax;
     this->maxParticles = maxParticles;
 
-    sdtx_desc_t textDesc;
+    sdtx_desc_t textDesc{};
     textDesc.fonts[0] = sdtx_font_oric();
     textDesc.logger.func = slog_func;
     sdtx_setup(&textDesc);
@@ -109,8 +110,15 @@ void EmitterOkay::Stop(bool immediately)
 
 void EmitterOkay::Tick(float deltaTime, hmm_mat4 params)
 {
+    double oldTime = stm_now();
+
     EmitParticles(deltaTime);
     UpdateInstances(deltaTime);
+
+    updateTimes[updateIndex] = stm_ms(stm_since(oldTime));
+    updateMax = std::max(updateMax, updateTimes[updateIndex]);
+    updateIndex += 1;
+    if (updateIndex > 31) updateIndex = 0;
 
     // Draw emitter particles
     sg_apply_pipeline(pipeline);
@@ -120,11 +128,16 @@ void EmitterOkay::Tick(float deltaTime, hmm_mat4 params)
     sg_apply_uniforms(SG_SHADERSTAGE_VS, SLOT_vs_params, SG_RANGE(vs_params));
     sg_draw(0, indexCount, (int)particleData.size()); // Base element, Number of elements, instances
 
+    double timeSince = 0;
+    for (int i = 0; i < 32; ++i)
+    {
+        timeSince += updateTimes[i];
+    }
 
     // help text
     char buffer[50];
-    sprintf_s(buffer, "Okay Emitter\n\nDraw Time: %.2fms", ceil((deltaTime * 1000) * 100) / 100);
-    sdtx_canvas(640.0f, 360.0f);
+    sprintf_s(buffer, "Okay Emitter\n\n Average: %.2fms\n Highest: %.2fms", timeSince / 32, updateMax);
+    sdtx_canvas(720.0f, 360.0f);
     sdtx_pos(0.5f, 0.5f);
     sdtx_puts(buffer);
     sdtx_draw();
@@ -137,13 +150,6 @@ void EmitterOkay::SetOffsetPosition(float x, float y, float z)
     offsetPos[2] = z;
 }
 
-void EmitterOkay::SetOffsetRotation(float x, float y, float z)
-{
-    offsetRot[0] = x;
-    offsetRot[1] = y;
-    offsetRot[2] = z;
-}
-
 void EmitterOkay::AddModule(IModule& mod)
 {
     modules.push_back(&mod);
@@ -152,16 +158,9 @@ void EmitterOkay::AddModule(IModule& mod)
 void EmitterOkay::EmitParticles(float deltaTime)
 {
     if (!isActive) return;
-    emissionTimer += deltaTime;
 
-    /*char buffer[50];
-    sprintf_s(buffer, "Timer: %f // Delta: %f", emissionTimer, deltaTime);
-    LOG(buffer);*/
-
-    if (emissionTimer >= emissionRate)
+    for (int i = 0; i < emissionRate; ++i)
     {
-        emissionTimer -= emissionRate;
-
         int size = (int)particleData.size();
         int cap = (int)particleData.capacity();
 
@@ -171,9 +170,9 @@ void EmitterOkay::EmitParticles(float deltaTime)
             particleData.insert(particleData.begin(), data);
 
             ParticleInstance inst;
-            inst.x = offsetPos[0] + random(-100.0f, 100.0f);
+            inst.x = offsetPos[0] + random(-500.0f, 500.0f);
             inst.y = offsetPos[1] + random(-100.0f, 100.0f);
-            inst.z = 0.0f;
+            inst.z = offsetPos[2];
             inst.maxDuration = random(lifespanMin, lifespanMax);
             inst.seconds = 0.0f;
             particleInstances.insert(particleInstances.begin(), inst);
