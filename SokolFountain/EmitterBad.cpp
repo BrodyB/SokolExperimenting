@@ -110,7 +110,7 @@ void EmitterBad::Stop(bool immediately)
 
 void EmitterBad::Tick(float deltaTime, hmm_mat4 params)
 {
-    double oldTime = stm_now();
+    uint64_t oldTime = stm_now();
 
     EmitParticles(deltaTime);
     UpdateInstances(deltaTime);
