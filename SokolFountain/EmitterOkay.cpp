@@ -167,7 +167,7 @@ void EmitterOkay::EmitParticles(float deltaTime)
         if (particleData.size() < maxParticles)
         {
             ParticleData data;
-            particleData.insert(particleData.begin(), data);
+            particleData.push_back(data);
 
             ParticleInstance inst;
             inst.x = offsetPos[0] + random(-500.0f, 500.0f);
@@ -175,7 +175,7 @@ void EmitterOkay::EmitParticles(float deltaTime)
             inst.z = offsetPos[2];
             inst.maxDuration = random(lifespanMin, lifespanMax);
             inst.seconds = 0.0f;
-            particleInstances.insert(particleInstances.begin(), inst);
+            particleInstances.push_back(inst);
         }
     }
 }
@@ -189,6 +189,22 @@ void EmitterOkay::UpdateInstances(float deltaTime)
         for (IModule* module : modules)
         {
             module->Tick(deltaTime, &particleInstances[i]);
+        }
+
+        // Remove expired instances at the back of the list
+        if (particleInstances[i].seconds > particleInstances[i].maxDuration)
+        {
+            ParticleInstance tempInst = particleInstances.back();
+            ParticleData tempData = particleData.back();
+
+            particleInstances.back() = particleInstances[i];
+            particleData.back() = particleData[i];
+
+            particleInstances[i] = tempInst;
+            particleData[i] = tempData;
+
+            particleInstances.pop_back();
+            particleData.pop_back();
         }
 
         particleInstances[i].x += particleInstances[i].velX * deltaTime;
@@ -206,14 +222,6 @@ void EmitterOkay::UpdateInstances(float deltaTime)
     // Update the instance buffer
     if (particleData.size() > 0)
     {
-        // Remove expired instances at the back of the list
-        ParticleInstance oldInst = particleInstances.back();
-        if (oldInst.seconds > oldInst.maxDuration)
-        {
-            particleInstances.pop_back();
-            particleData.pop_back();
-        }
-
         sg_range data = {};
         data.ptr = &particleData[0];
         data.size = particleData.size() * sizeof(ParticleData);
