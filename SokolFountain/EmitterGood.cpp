@@ -15,6 +15,16 @@ EmitterGood::EmitterGood(const char* imgPath, const std::vector<vertex_t>* verti
     lifespanMax = durationMax;
     this->maxParticles = maxParticles;
 
+    fromColor.r = 0.8f;
+    fromColor.g = 0.8f;
+    fromColor.b = 0.8f;
+    fromColor.a = 1.0f;
+
+    toColor.r = 0.3f;
+    toColor.g = 0.3f;
+    toColor.b = 0.3f;
+    toColor.a = 0.0f;
+
     sdtx_desc_t textDesc{};
     textDesc.fonts[0] = sdtx_font_oric();
     textDesc.logger.func = slog_func;
@@ -152,7 +162,6 @@ void EmitterGood::SetOffsetPosition(float x, float y, float z)
 
 void EmitterGood::AddModule(IModule& mod)
 {
-    modules.push_back(&mod);
 }
 
 void EmitterGood::EmitParticles(float deltaTime)
@@ -169,54 +178,84 @@ void EmitterGood::EmitParticles(float deltaTime)
             ParticleData data;
             particleData.push_back(data);
 
-            ParticleInstance inst;
-            inst.x = offsetPos[0] + random(-500.0f, 500.0f);
-            inst.y = offsetPos[1] + random(-100.0f, 100.0f);
-            inst.z = offsetPos[2];
-            inst.maxDuration = random(lifespanMin, lifespanMax);
-            inst.seconds = 0.0f;
-            particleInstances.push_back(inst);
+            hmm_vec4 pos;
+            pos.X = offsetPos[0] + random(-500.0f, 500.0f);
+            pos.Y = offsetPos[1] + random(-100.0f, 100.0f);
+            pos.Z = offsetPos[2];
+            pos.W = 1.0f;
+            positions.push_back(pos);
+
+            color_t col;
+            colors.push_back(col);
+
+            hmm_vec2 life;
+            life.X = 0.0f;
+            life.Y = random(lifespanMin, lifespanMax);
+            lifetimes.push_back(life);
         }
     }
 }
 
 void EmitterGood::UpdateInstances(float deltaTime)
 {
+    int i = 0;
+
+    for (i = 0; i < lifetimes.size(); ++i)
+    {
+        // Remove particle data if it's expired
+        if (lifetimes[i].X >= lifetimes[i].Y)
+        {
+            int last = (int)lifetimes.size() - 1;
+
+            ParticleData tempData = particleData[last];
+            particleData[last] = particleData[i];
+            particleData[i] = tempData;
+            particleData.pop_back();
+
+            hmm_vec4 tempPos = positions[last];
+            positions[last] = positions[i];
+            positions[i] = tempPos;
+            positions.pop_back();
+
+            color_t tempColor = colors[last];
+            colors[last] = colors[i];
+            colors[i] = tempColor;
+            colors.pop_back();
+
+            hmm_vec2 tempLife = lifetimes[last];
+            lifetimes[last] = lifetimes[i];
+            lifetimes[i] = tempLife;
+            lifetimes.pop_back();
+            continue;
+        }
+
+        lifetimes[i].X = std::min(lifetimes[i].X + deltaTime, lifetimes[i].Y);
+    }
+
+    for (i = 0; i < positions.size(); ++i)
+    {
+        positions[i].X += 0.1f * deltaTime;
+        positions[i].Y += 75.0f * deltaTime;
+        positions[i].Z += deltaTime;
+        positions[i].W = lerp(64.0f, 360.0f, lifetimes[i].X / lifetimes[i].Y);
+    }
+
+    for (i = 0; i < colors.size(); ++i)
+    {
+        float percent = lifetimes[i].X / lifetimes[i].Y;
+        colors[i].r = clamp(lerp(fromColor.r, toColor.r, percent), 0.0f, 1.0f);
+        colors[i].g = clamp(lerp(fromColor.g, toColor.g, percent), 0.0f, 1.0f);
+        colors[i].b = clamp(lerp(fromColor.b, toColor.b, percent), 0.0f, 1.0f);
+        colors[i].a = clamp(lerp(fromColor.a, toColor.a, percent), 0.0f, 1.0f);
+    }
+
     for (int i = 0; i < particleData.size(); ++i)
     {
-        particleInstances[i].seconds += deltaTime;
-
-        for (IModule* module : modules)
-        {
-            module->Tick(deltaTime, &particleInstances[i]);
-        }
-
-        // Remove expired instances at the back of the list
-        if (particleInstances[i].seconds > particleInstances[i].maxDuration)
-        {
-            ParticleInstance tempInst = particleInstances.back();
-            ParticleData tempData = particleData.back();
-
-            particleInstances.back() = particleInstances[i];
-            particleData.back() = particleData[i];
-
-            particleInstances[i] = tempInst;
-            particleData[i] = tempData;
-
-            particleInstances.pop_back();
-            particleData.pop_back();
-        }
-
-        particleInstances[i].x += particleInstances[i].velX * deltaTime;
-        particleInstances[i].y += particleInstances[i].velY * deltaTime;
-
-        // Push updated values to the data struct
-        particleData[i].x = particleInstances[i].x;
-        particleData[i].y = particleInstances[i].y;
-        particleData[i].z = particleInstances[i].z;
-        particleData[i].scale = particleInstances[i].scale;
-
-        particleData[i].color = particleInstances[i].color;
+        particleData[i].x = positions[i].X;
+        particleData[i].y = positions[i].Y;
+        particleData[i].z = positions[i].Z;
+        particleData[i].scale = positions[i].W;
+        particleData[i].color = colors[i];
     }
 
     // Update the instance buffer

@@ -4,6 +4,7 @@
 #include "ParticleTypes.h"
 #include "sokol_gfx.h"
 #include "Interfaces/IModule.h"
+#include "HandmadeMath.h"
 
 class EmitterGood
 {
@@ -34,8 +35,11 @@ private:
     sg_bindings bindings = { 0 };
     sg_pipeline pipeline = { 0 };
     std::vector<ParticleData> particleData;
-    std::vector<ParticleInstance> particleInstances;
-    std::vector<IModule*> modules;
+    std::vector<hmm_vec4> positions;
+    std::vector<color_t> colors;
+    std::vector<hmm_vec2> lifetimes;
+    color_t fromColor;
+    color_t toColor;
 
     void EmitParticles(float deltaTime);
     void UpdateInstances(float deltaTime);
