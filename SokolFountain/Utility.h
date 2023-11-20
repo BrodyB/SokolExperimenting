@@ -5,10 +5,11 @@
 
 #define LOG(msg) slog_func("fountain", 3, 0, msg, __LINE__, __FILE__, nullptr)
 
+static std::random_device rd;
+static std::mt19937 gen(rd());
+
 inline float random(float min, float max)
 {
-    std::random_device rd;
-    std::mt19937 gen(rd());
     std::uniform_real_distribution<> distr(min, max);
     return static_cast<float>(distr(gen));
 }
