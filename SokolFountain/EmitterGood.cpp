@@ -120,13 +120,11 @@ void EmitterGood::Stop(bool immediately)
 
 void EmitterGood::Tick(float deltaTime, hmm_mat4 params)
 {
-    uint64_t oldTime = stm_now();
+    oldTime = stm_now();
 
     EmitParticles(deltaTime);
     UpdateInstances(deltaTime);
 
-    updateTimes[updateIndex] = stm_ms(stm_since(oldTime));
-    updateMax = std::max(updateMax, updateTimes[updateIndex]);
     updateIndex += 1;
     if (updateIndex > 31) updateIndex = 0;
 
@@ -138,15 +136,29 @@ void EmitterGood::Tick(float deltaTime, hmm_mat4 params)
     sg_apply_uniforms(SG_SHADERSTAGE_VS, SLOT_vs_params, SG_RANGE(vs_params));
     sg_draw(0, indexCount, (int)particleData.size()); // Base element, Number of elements, instances
 
-    double timeSince = 0;
+    double addAvg = 0;
+    double removeAvg = 0;
+    double posAvg = 0;
+    double colorAvg = 0;
+    double updateAvg = 0;
     for (int i = 0; i < 32; ++i)
     {
-        timeSince += updateTimes[i];
+        addAvg += emitTimes[i];
+        removeAvg += removalTimes[i];
+        posAvg += positionTimes[i];
+        colorAvg += colorTimes[i];
+        updateAvg += updateTimes[i];
     }
 
+    addAvg = addAvg / 32.0f;
+    removeAvg = removeAvg / 32.0f;
+    posAvg = posAvg / 32.0f;
+    colorAvg = colorAvg / 32.0f;
+    updateAvg = updateAvg / 32.0f;
+
     // help text
-    char buffer[50];
-    sprintf_s(buffer, "Good Emitter\n\n Average: %.2fms\n Highest: %.2fms", timeSince / 32, updateMax);
+    char buffer[192];
+    sprintf_s(buffer, "Good Emitter\n\n Emit Particles: %.2fms\n Remove Particles: %.2fms\n Position Update: %.2fms\n Color Update: %.2fms\n Data Update: %.2fms\n Highest: %.2fms", addAvg, removeAvg, posAvg, colorAvg, updateAvg, updateMax);
     sdtx_canvas(720.0f, 360.0f);
     sdtx_pos(0.5f, 0.5f);
     sdtx_puts(buffer);
@@ -194,6 +206,10 @@ void EmitterGood::EmitParticles(float deltaTime)
             lifetimes.push_back(life);
         }
     }
+
+    emitTimes[updateIndex] = stm_ms(stm_since(oldTime));
+    updateMax = std::max(updateMax, emitTimes[updateIndex]);
+    oldTime = stm_now();
 }
 
 void EmitterGood::UpdateInstances(float deltaTime)
@@ -232,6 +248,10 @@ void EmitterGood::UpdateInstances(float deltaTime)
         lifetimes[i].X = std::min(lifetimes[i].X + deltaTime, lifetimes[i].Y);
     }
 
+    removalTimes[updateIndex] = stm_ms(stm_since(oldTime));
+    updateMax = std::max(updateMax, removalTimes[updateIndex]);
+    oldTime = stm_now();
+
     for (i = 0; i < positions.size(); ++i)
     {
         positions[i].X += 0.1f * deltaTime;
@@ -239,6 +259,10 @@ void EmitterGood::UpdateInstances(float deltaTime)
         positions[i].Z += deltaTime;
         positions[i].W = lerp(64.0f, 360.0f, lifetimes[i].X / lifetimes[i].Y);
     }
+
+    positionTimes[updateIndex] = stm_ms(stm_since(oldTime));
+    updateMax = std::max(updateMax, positionTimes[updateIndex]);
+    oldTime = stm_now();
 
     for (i = 0; i < colors.size(); ++i)
     {
@@ -249,6 +273,10 @@ void EmitterGood::UpdateInstances(float deltaTime)
         colors[i].a = clamp(lerp(fromColor.a, toColor.a, percent), 0.0f, 1.0f);
     }
 
+    colorTimes[updateIndex] = stm_ms(stm_since(oldTime));
+    updateMax = std::max(updateMax, colorTimes[updateIndex]);
+    oldTime = stm_now();
+
     for (int i = 0; i < particleData.size(); ++i)
     {
         particleData[i].x = positions[i].X;
@@ -257,6 +285,9 @@ void EmitterGood::UpdateInstances(float deltaTime)
         particleData[i].scale = positions[i].W;
         particleData[i].color = colors[i];
     }
+
+    updateTimes[updateIndex] = stm_ms(stm_since(oldTime));
+    updateMax = std::max(updateMax, updateTimes[updateIndex]);
 
     // Update the instance buffer
     if (particleData.size() > 0)

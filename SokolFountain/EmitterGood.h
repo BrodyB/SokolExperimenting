@@ -28,6 +28,11 @@ private:
     const int emissionRate = 40;
     int32_t maxParticles;
     int32_t indexCount;
+    uint64_t oldTime;
+    double emitTimes[32] = { 0 };
+    double removalTimes[32] = { 0 };
+    double positionTimes[32] = { 0 };
+    double colorTimes[32] = { 0 };
     double updateTimes[32] = { 0 };
     int updateIndex = 0;
     double updateMax;
